@@ -1,7 +1,13 @@
 (() => {
     class myWebsocketHandler {
         setupSocket() {
-            this.socket = new WebSocket("ws://localhost:4000/ws/chat")
+
+            const wsUri =
+            (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+            window.location.host +
+            '/ws/'
+
+            this.socket = new WebSocket(wsUri)
 
             this.socket.addEventListener("open", () => {
                 const main = document.getElementById("main")
@@ -60,12 +66,13 @@
             }
 
             this.socket.send(
-                JSON.stringify({
-                    data: {
-                        message: message,
-                        name: name
-                    },
-                })
+                // JSON.stringify({
+                //     data: {
+                //         message: message,
+                //         name: name
+                //     },
+                // })
+                message
             )
         }
     }
@@ -75,10 +82,4 @@
 
     document.getElementById("button_chat")
         .addEventListener("click", (event) => websocketClass.submit(event))
-    document.getElementById("button_3d6")
-        .addEventListener("click", (event) => websocketClass.submit(event, "3d6"))
-    document.getElementById("button_1d6")
-        .addEventListener("click", (event) => websocketClass.submit(event, "1d6"))
-    document.getElementById("button_1d3")
-        .addEventListener("click", (event) => websocketClass.submit(event, "1d3"))
 })()

@@ -163,26 +163,22 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                     name: self.room.clone(),
                                 });
 
-                                ctx.text("joined");
+                                ctx.text(create_text_response("joined"));
                             } else {
-                                ctx.text("!!! room name is required");
+                                ctx.text(create_text_response("!!! room name is required"));
                             }
                         }
                         "/name" => {
                             if v.len() == 2 {
                                 self.name = Some(v[1].to_owned());
                             } else {
-                                ctx.text("!!! name is required");
+                                ctx.text(create_text_response("!!! name is required"));
                             }
                         }
-                        _ => ctx.text(format!("!!! unknown command: {:?}", m)),
+                        _ => ctx.text(create_text_response(&format!("!!! unknown command: {:?}", m))),
                     }
                 } else {
-                    let msg = if let Some(ref name) = self.name {
-                        format!("{}: {}", name, m)
-                    } else {
-                        m.to_owned()
-                    };
+                    let msg = create_chat_response(m, &self.name.as_ref().unwrap_or(&"anonymous".to_owned()));
                     // send message to chat server
                     self.addr.do_send(server::ClientMessage {
                         id: self.id,
@@ -202,6 +198,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
             ws::Message::Nop => (),
         }
     }
+}
+
+fn create_text_response(message: &str) -> String {
+    format!("{{\"message\": \"{}\", \"name\": \"system\" }}", message)
+}
+
+fn create_chat_response(message: &str, sender: &str) -> String {
+    format!("{{\"message\": \"{}\", \"name\": \"{}\"  }}", message, sender)
 }
 
 impl WsChatSession {

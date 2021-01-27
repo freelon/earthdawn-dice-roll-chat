@@ -130,8 +130,8 @@ impl Handler<Connect> for ChatServer {
             .or_insert_with(HashSet::new)
             .insert(id);
 
-        let count = self.visitor_count.fetch_add(1, Ordering::SeqCst);
-        self.send_message("Main", &format!("Total visitors {}", count), 0);
+        // let count = self.visitor_count.fetch_add(1, Ordering::SeqCst);
+        // self.send_message("Main", &format!("Total visitors {}", count), 0);
 
         // send id back
         id
@@ -168,7 +168,7 @@ impl Handler<ClientMessage> for ChatServer {
     type Result = ();
 
     fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_message(&msg.room, msg.msg.as_str(), msg.id);
+        self.send_message(&msg.room, msg.msg.as_str(), 0);
     }
 }
 

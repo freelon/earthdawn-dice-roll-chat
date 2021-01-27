@@ -2,22 +2,25 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script type="application/javascript" defer="defer" src="static/js/application.js"></script>
-    <link rel="stylesheet" type="text/css" href="static/css/application.css">
+    <script type="application/javascript" defer="defer" src="js/application.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/application.css">
     <title>
       Earthdawn Dice Rolling Chat
     </title>
   </head>
   <body>
-    Name: <input type="text" id="name">
+    Howto: 
+    <br>
+    <code>/name</code> -- set your name
+    <br>
+    <code>!1d5+2</code> -- roll 1d5 and add 2
+    <br>
+    <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
     <hr>
      <form autocomplete="off">
       <input id="message" type="text">
       <input type="submit" value="Go" id="button_chat">
     </form>
-    <input type="submit" value="3d6" id="button_3d6">
-    <input type="submit" value="1d6" id="button_1d6">
-    <input type="submit" value="1d3" id="button_1d3">  
     <br>
     <main id="main"></main>
 
