@@ -16,6 +16,8 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+const DEFAULT_NAME: &str = "anonymous";
+
 /// Entry point for our websocket route
 async fn chat_route(
     req: HttpRequest,
@@ -104,11 +106,7 @@ impl Handler<server::Message> for WsChatSession {
 
 /// WebSocket message handler
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
-    fn handle(
-        &mut self,
-        msg: Result<ws::Message, ws::ProtocolError>,
-        ctx: &mut Self::Context,
-    ) {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         let msg = match msg {
             Err(_) => {
                 ctx.stop();
@@ -175,10 +173,23 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                 ctx.text(create_text_response("!!! name is required"));
                             }
                         }
-                        _ => ctx.text(create_text_response(&format!("!!! unknown command: {:?}", m))),
+                        _ => ctx.text(create_text_response(&format!(
+                            "!!! unknown command: {:?}",
+                            m
+                        ))),
                     }
                 } else {
-                    let msg = create_chat_response(m, &self.name.as_ref().unwrap_or(&"anonymous".to_owned()));
+                    let sender = if let Some(ref name_ref) = self.name {
+                        name_ref
+                    } else {
+                        DEFAULT_NAME
+                    };
+
+                    let msg = if m.starts_with('!') {
+                        create_dice_response(m, &vec![1, 2, 3], &sender)
+                    } else {
+                        create_chat_response(m, &sender)
+                    };
                     // send message to chat server
                     self.addr.do_send(server::ClientMessage {
                         id: self.id,
@@ -205,7 +216,23 @@ fn create_text_response(message: &str) -> String {
 }
 
 fn create_chat_response(message: &str, sender: &str) -> String {
-    format!("{{\"message\": \"{}\", \"name\": \"{}\"  }}", message, sender)
+    format!(
+        "{{\"message\": \"{}\", \"name\": \"{}\"  }}",
+        message, sender
+    )
+}
+
+fn create_dice_response(message: &str, dice_results: &Vec<usize>, sender: &str) -> String {
+    format!(
+        "{{\"message\": \"{}\", \"diceResults\": [{}], \"name\": \"{}\"  }}",
+        message,
+        dice_results
+            .iter()
+            .map(|r| format!("{}", r))
+            .collect::<Vec<String>>()
+            .join(","),
+        sender
+    )
 }
 
 impl WsChatSession {

@@ -56,7 +56,6 @@
         submit(event, msg) {
             event.preventDefault()
             var message
-            const name = document.getElementById("name").value
             if (msg == null) {
                 const input = document.getElementById("message")
                 message = input.value
