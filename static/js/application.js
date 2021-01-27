@@ -11,7 +11,7 @@
 
             this.socket.addEventListener("open", () => {
                 const main = document.getElementById("main")
-                main.innerText = ""
+                // main.innerText = ""
                 main.classList.remove("disconnected")
             })
 
