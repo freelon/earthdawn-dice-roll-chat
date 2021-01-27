@@ -1,11 +1,10 @@
 [package]
-name = "websocket-example"
-version = "2.0.0"
-authors = ["Nikolay Kim <fafhrd91@gmail.com>"]
+name = "earthdawn-dice-roll-chat"
+version = "1.0.0"
 edition = "2018"
 
 [[bin]]
-name = "websocket-chat-server"
+name = "earthdawn-dice-roll-chat"
 path = "src/main.rs"
 
 [dependencies]
