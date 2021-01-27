@@ -1,3 +1,4 @@
+use crate::dice::get_results;
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
     Arc,
@@ -10,6 +11,7 @@ use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer, Responde
 use actix_web_actors::ws;
 
 mod server;
+mod dice;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -186,7 +188,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                     };
 
                     let msg = if m.starts_with('!') {
-                        create_dice_response(m, &vec![1, 2, 3], &sender)
+                        create_dice_response(m, &get_results(&m[1..]), &sender)
                     } else {
                         create_chat_response(m, &sender)
                     };
@@ -222,7 +224,7 @@ fn create_chat_response(message: &str, sender: &str) -> String {
     )
 }
 
-fn create_dice_response(message: &str, dice_results: &Vec<usize>, sender: &str) -> String {
+fn create_dice_response(message: &str, dice_results: &Vec<i32>, sender: &str) -> String {
     format!(
         "{{\"message\": \"{}\", \"diceResults\": [{}], \"name\": \"{}\"  }}",
         message,
