@@ -10,6 +10,8 @@ use actix_files as fs;
 use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
 use actix_web_actors::ws;
 
+use chrono::Utc;
+
 mod server;
 mod dice;
 
@@ -117,7 +119,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
             Ok(msg) => msg,
         };
 
-        println!("WEBSOCKET MESSAGE: {:?}", msg);
         match msg {
             ws::Message::Ping(msg) => {
                 self.hb = Instant::now();
@@ -127,6 +128,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
+                println!("[{}] Msg from >{:?}: '{}'", Utc::now().format("%T"), self.name, text);
+
                 let m = text.trim();
                 // we check for /sss type of messages
                 if m.starts_with('/') {
