@@ -9,10 +9,16 @@ pub fn get_results(request: &str) -> Vec<i32> {
         request
     };
 
-    s.split('+')
+    let dice_result: Vec<i32> = s.split('+')
         .map(|part| run(part, should_explode))
         .filter_map(|x| x)
-        .collect()
+        .collect();
+
+    if dice_result.len() == 0 {
+        vec![-666]
+    } else {
+        dice_result
+    }
 }
 
 fn run(input: &str, should_explode: bool) -> Option<i32> {
