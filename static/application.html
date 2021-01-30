@@ -1,28 +1,68 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <script type="application/javascript" defer="defer" src="js/application.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/application.css">
-    <title>
-      Earthdawn Dice Rolling Chat
-    </title>
-  </head>
-  <body>
-    Howto: 
-    <br>
-    <code>/name</code> -- set your name
-    <br>
-    <code>!1d5+2</code> -- roll 1d5 and add 2
-    <br>
-    <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
-    <hr>
-     <form autocomplete="off">
-      <input id="message" type="text">
-      <input type="submit" value="Go" id="button_chat">
-    </form>
-    <br>
-    <main id="main"></main>
 
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <script type="application/javascript" defer="defer" src="js/application.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/application.css">
+  <title>
+    Earthdawn Dice Rolling Chat
+  </title>
+</head>
+
+<body>
+  <div class="main-view">
+    <div class="chat">
+      <div>
+        <h4>Howto:</h4>
+        <code>/name XXX</code> -- set your name to XXX
+        <br>
+        <code>!1d5+2</code> -- roll 1d5 and add 2
+        <br>
+        <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
+      </div>
+      <hr>
+      <form autocomplete="off">
+        <input id="message" type="text">
+        <input type="submit" value="Go" id="button_chat">
+      </form>
+      <br>
+      <main id="main"></main>
+    </div>
+
+    <div class="earthdawn">
+      <div class="dice">
+        <h4>Step/Action Dice</h4>
+        <button onclick="websocketClass.submit('!1d4+-2')">1</button>
+        <button onclick="websocketClass.submit('!1d4+-1')">2</button>
+        <button onclick="websocketClass.submit('!1d4')">3</button>
+        <button onclick="websocketClass.submit('!1d6')">4</button>
+        <button onclick="websocketClass.submit('!1d8')">5</button>
+        <br>
+        <button onclick="websocketClass.submit('!1d10')">6</button>
+        <button onclick="websocketClass.submit('!1d12')">7</button>
+        <button onclick="websocketClass.submit('!2d6')">8</button>
+        <button onclick="websocketClass.submit('!1d8+1d6')">9</button>
+        <button onclick="websocketClass.submit('!1d10+1d6')">10</button>
+        <br>
+        <button onclick="websocketClass.submit('!1d10+1d8')">11</button>
+        <button onclick="websocketClass.submit('!2d10')">12</button>
+        <button onclick="websocketClass.submit('!1d12+1d10')">13</button>
+        <button onclick="websocketClass.submit('!1d20+1d4')">14</button>
+        <button onclick="websocketClass.submit('!1d20+1d6')">15</button>
+        <br>
+        <button onclick="websocketClass.submit('!1d20+1d8')">16</button>
+        <button onclick="websocketClass.submit('!1d20+1d10')">17</button>
+        <button onclick="websocketClass.submit('!1d20+1d12')">18</button>
+        <button onclick="websocketClass.submit('!1d20+2d6')">19</button>
+        <button onclick="websocketClass.submit('!1d20+1d8+1d6')">20</button>
+      </div>
+
+      <div class="target_numbers">
+        <img src="/static/img/target_numbers.png" />
+      </div>
+    </div>
+  </div>
+</body>
+
 </html>

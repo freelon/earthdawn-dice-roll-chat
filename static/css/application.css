@@ -32,3 +32,29 @@
     /* border-style: dashed; */
     margin: 0px;
 }
+
+.main-view {
+    overflow: hidden;
+}
+
+.main-view > * {
+    padding: 3em;
+}
+
+.chat {
+    width: 50%;
+    float: left;
+}
+
+.earthdawn {
+    width: 30%;
+    float: left;
+}
+
+.dice {
+    margin-bottom: 2em;
+}
+
+.dice button {
+    width: 6ch;
+}
