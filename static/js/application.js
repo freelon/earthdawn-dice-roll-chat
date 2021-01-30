@@ -10,7 +10,7 @@
             this.socket = new WebSocket(wsUri)
 
             this.socket.addEventListener("open", () => {
-                const main = document.getElementById("main")
+                const main = document.getElementById("chat-view")
                 // main.innerText = ""
                 main.classList.remove("disconnected")
             })
@@ -48,7 +48,7 @@
             })
 
             this.socket.addEventListener("close", () => {
-                document.getElementById("main").classList.add("disconnected")
+                document.getElementById("chat-view").classList.add("disconnected")
                 this.setupSocket()
             })
         }

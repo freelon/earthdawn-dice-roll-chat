@@ -6,8 +6,8 @@
     margin: 4px;
 }
 
-#main.disconnected {
-    background-color: gray;
+.chat.disconnected {
+    background-color: lightgray;
 }
 
 .chatEntry .name {
@@ -44,6 +44,18 @@
 .chat {
     width: 50%;
     float: left;
+}
+
+.disconnected > #chat-form {
+    display: none;
+}
+
+#disconnected-message {
+    display: none;
+}
+
+.disconnected > #disconnected-message {
+    display: inline;
 }
 
 .earthdawn {

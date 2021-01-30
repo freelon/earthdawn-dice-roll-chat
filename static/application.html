@@ -12,7 +12,7 @@
 
 <body>
   <div class="main-view">
-    <div class="chat">
+    <div class="chat disconnected" id="chat-view">
       <div>
         <h4>Howto:</h4>
         <code>/name XXX</code> -- set your name to XXX
@@ -22,10 +22,11 @@
         <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
       </div>
       <hr>
-      <form autocomplete="off">
+      <form autocomplete="off" id="chat-form">
         <input id="message" type="text">
         <input type="submit" value="Go" id="button_chat">
       </form>
+      <span id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
       <br>
       <main id="main"></main>
     </div>
