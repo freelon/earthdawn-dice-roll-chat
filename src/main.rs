@@ -1,19 +1,15 @@
 use crate::dice::get_results;
-use std::sync::{
-    atomic::{AtomicUsize, Ordering},
-    Arc,
-};
 use std::time::{Duration, Instant};
 
 use actix::*;
 use actix_files as fs;
-use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
 use chrono::Utc;
 
-mod server;
 mod dice;
+mod server;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -39,12 +35,6 @@ async fn chat_route(
         &req,
         stream,
     )
-}
-
-///  Displays and affects state
-async fn get_count(count: web::Data<Arc<AtomicUsize>>) -> impl Responder {
-    let current_count = count.fetch_add(1, Ordering::SeqCst);
-    format!("Visitors: {}", current_count)
 }
 
 struct WsChatSession {
@@ -128,7 +118,12 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
-                println!("[{}] Msg from >{:?}: '{}'", Utc::now().format("%T"), self.name, text);
+                println!(
+                    "[{}] Msg from >{:?}: '{}'",
+                    Utc::now().format("%T"),
+                    self.name,
+                    text
+                );
 
                 let m = text.trim();
                 // we check for /sss type of messages
@@ -270,17 +265,12 @@ impl WsChatSession {
 async fn main() -> std::io::Result<()> {
     env_logger::init();
 
-    // App state
-    // We are keeping a count of the number of visitors
-    let app_state = Arc::new(AtomicUsize::new(0));
-
     // Start chat server actor
-    let server = server::ChatServer::new(app_state.clone()).start();
+    let server = server::ChatServer::new().start();
 
     // Create Http server with websocket support
     HttpServer::new(move || {
         App::new()
-            .data(app_state.clone())
             .data(server.clone())
             // redirect to websocket.html
             .service(web::resource("/").route(web::get().to(|| {
@@ -288,7 +278,6 @@ async fn main() -> std::io::Result<()> {
                     .header("LOCATION", "/static/application.html")
                     .finish()
             })))
-            .route("/count/", web::get().to(get_count))
             // websocket
             .service(web::resource("/ws/").to(chat_route))
             // static resources
