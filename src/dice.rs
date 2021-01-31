@@ -50,6 +50,10 @@ fn roll(a: u32, b: u32, should_explode: bool) -> i32 {
 }
 
 fn roll_single(x: u32, should_explode: bool) -> i32 {
+    if x < 1 {
+        return 0;
+    }
+
     let mut rng = thread_rng();
     let mut result: i32 = 0;
     loop {
