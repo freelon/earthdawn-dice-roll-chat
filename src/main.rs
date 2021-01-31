@@ -121,7 +121,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
-                trace!(
+                debug!(
                     "[{}] Msg from >{:?}: '{}'",
                     Utc::now().format("%T"),
                     self.name,
