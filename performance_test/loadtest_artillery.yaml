@@ -1,0 +1,19 @@
+config:
+    target: "http://localhost:8080/ws/"
+    ensure:
+      maxErrorRate: 1
+    phases:
+      - duration: 20
+        arrivalRate: 5
+        rampTo: 50
+        name: "Warming up"
+      - duration: 60
+        arrivalRate: 50
+        rampTo: 500
+        name: "Max load"
+scenarios:
+  - engine: "ws"
+    flow:
+      - send: "hellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohellohello"
+      - think: 5
+      - send: "how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?how are you?"
