@@ -55,7 +55,7 @@ fn roll_single(x: u32, should_explode: bool) -> i32 {
     loop {
         let i: u32 = rng.gen_range(1, x + 1);
         result += i as i32;
-        if !should_explode || (i < x && x > 1) {
+        if !should_explode || (i < x && x > 1) || x == 1 {
             break;
         }
     }
