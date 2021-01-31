@@ -163,7 +163,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                     name: self.room.clone(),
                                 });
 
-                                ctx.text(create_text_response("joined"));
+                                ctx.text(create_text_response(&format!("You joined room {}", v[1])));
                             } else {
                                 ctx.text(create_text_response("!!! room name is required"));
                             }
@@ -214,26 +214,33 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
 }
 
 fn create_text_response(message: &str) -> String {
-    format!("{{\"message\": \"{}\", \"name\": \"system\" }}", message)
+    format!(
+        "{{\"message\": \"{}\", \"name\": \"system\", \"time\": {} }}",
+        message,
+        Utc::now().timestamp()
+    )
 }
 
 fn create_chat_response(message: &str, sender: &str) -> String {
     format!(
-        "{{\"message\": \"{}\", \"name\": \"{}\"  }}",
-        message, sender
+        "{{\"message\": \"{}\", \"name\": \"{}\", \"time\": {}  }}",
+        message,
+        sender,
+        Utc::now().timestamp()
     )
 }
 
 fn create_dice_response(message: &str, dice_results: &Vec<i32>, sender: &str) -> String {
     format!(
-        "{{\"message\": \"{}\", \"diceResults\": [{}], \"name\": \"{}\"  }}",
+        "{{\"message\": \"{}\", \"diceResults\": [{}], \"name\": \"{}\", \"time\": {}  }}",
         message,
         dice_results
             .iter()
             .map(|r| format!("{}", r))
             .collect::<Vec<String>>()
             .join(","),
-        sender
+        sender,
+        Utc::now().timestamp()
     )
 }
 

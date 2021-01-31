@@ -2,6 +2,7 @@
 //! And manages available rooms. Peers send messages to other peers in same
 //! room through `ChatServer`.
 
+use chrono::Utc;
 use actix::prelude::*;
 use rand::{self, rngs::ThreadRng, Rng};
 
@@ -151,7 +152,7 @@ impl Handler<Disconnect> for ChatServer {
         }
         // send message to other users
         for room in rooms {
-            self.send_message(&room, "Someone disconnected", 0);
+            self.send_message(&room, &create_text_response("Someone disconnected"), 0);
         }
     }
 }
@@ -197,7 +198,7 @@ impl Handler<Join> for ChatServer {
         }
         // send message to other users
         for room in rooms {
-            self.send_message(&room, "Someone disconnected", 0);
+            self.send_message(&room, &create_text_response("Someone disconnected"), 0);
         }
 
         self.rooms
@@ -205,6 +206,14 @@ impl Handler<Join> for ChatServer {
             .or_insert_with(HashSet::new)
             .insert(id);
 
-        self.send_message(&name, "Someone connected", id);
+        self.send_message(&name, &create_text_response("Someone connected"), id);
     }
+}
+
+fn create_text_response(message: &str) -> String {
+    format!(
+        "{{\"message\": \"{}\", \"name\": \"system\", \"time\": {} }}",
+        message,
+        Utc::now().timestamp()
+    )
 }
