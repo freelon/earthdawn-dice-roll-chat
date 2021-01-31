@@ -642,6 +642,7 @@ dependencies = [
  "chrono",
  "env_logger",
  "futures",
+ "log",
  "rand",
  "serde",
  "serde_json",

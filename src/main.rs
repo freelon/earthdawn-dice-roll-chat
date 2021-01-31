@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 use crate::dice::get_results;
 use std::time::{Duration, Instant};
 
@@ -118,7 +121,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
-                println!(
+                trace!(
                     "[{}] Msg from >{:?}: '{}'",
                     Utc::now().format("%T"),
                     self.name,
@@ -133,7 +136,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         "/list" => {
                             // Send ListRooms message to chat server and wait for
                             // response
-                            println!("List rooms");
                             self.addr
                                 .send(server::ListRooms)
                                 .into_actor(self)
@@ -144,7 +146,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                                 ctx.text(room);
                                             }
                                         }
-                                        _ => println!("Something is wrong"),
+                                        _ => error!("Something is wrong"),
                                     }
                                     fut::ready(())
                                 })
@@ -198,7 +200,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                     })
                 }
             }
-            ws::Message::Binary(_) => println!("Unexpected binary"),
+            ws::Message::Binary(_) => error!("Unexpected binary"),
             ws::Message::Close(reason) => {
                 ctx.close(reason);
                 ctx.stop();
