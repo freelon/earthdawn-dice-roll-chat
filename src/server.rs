@@ -2,7 +2,7 @@
 //! And manages available rooms. Peers send messages to other peers in same
 //! room through `ChatServer`.
 
-use crate::OutgoingMessage;
+use crate::OutgoingMessageDTO;
 use actix::prelude::*;
 use rand::{self, rngs::ThreadRng, Rng};
 
@@ -114,7 +114,7 @@ impl Handler<Connect> for ChatServer {
         // notify all users in same room
         self.send_message(
             &"Main".to_owned(),
-            &OutgoingMessage::system("Someone joined").to_string(),
+            &OutgoingMessageDTO::system("Someone joined").to_string(),
             0,
         );
 
@@ -158,7 +158,7 @@ impl Handler<Disconnect> for ChatServer {
         for room in rooms {
             self.send_message(
                 &room,
-                &OutgoingMessage::system("Someone disconnected").to_string(),
+                &OutgoingMessageDTO::system("Someone disconnected").to_string(),
                 0,
             );
         }
@@ -208,7 +208,7 @@ impl Handler<Join> for ChatServer {
         for room in rooms {
             self.send_message(
                 &room,
-                &OutgoingMessage::system("Someone disconnected").to_string(),
+                &OutgoingMessageDTO::system("Someone disconnected").to_string(),
                 0,
             );
         }
@@ -220,7 +220,7 @@ impl Handler<Join> for ChatServer {
 
         self.send_message(
             &name,
-            &OutgoingMessage::system("Someone connected").to_string(),
+            &OutgoingMessageDTO::system("Someone connected").to_string(),
             id,
         );
     }
