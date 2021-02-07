@@ -55,6 +55,11 @@ const NAME = "name";
                     request.innerHTML = eventContent.message
                 }
 
+                const time = document.createElement("div")
+                time.className = "time"
+                time.innerHTML = this.timeFromTimestamp(eventContent.time)
+                pTag.append(time)
+
                 document.getElementById("main").prepend(pTag)
             })
 
@@ -84,12 +89,26 @@ const NAME = "name";
                 let name = urlParams.get(NAME)
                 this.submit("/name " + name)
             }
-            
+
             if (urlParams.has(ROOM)) {
                 let room = urlParams.get(ROOM)
                 this.submit("/join " + room)
             }
 
+        }
+
+        timeFromTimestamp(timestamp) {
+            let date = new Date(timestamp)
+            // Hours part from the timestamp
+            var hours = date.getHours();
+            // Minutes part from the timestamp
+            var minutes = "0" + date.getMinutes();
+            // Seconds part from the timestamp
+            var seconds = "0" + date.getSeconds();
+
+            // Will display time in 10:30:23 format
+            var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+            return formattedTime
         }
     }
 

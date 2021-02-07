@@ -1,4 +1,4 @@
-use chrono::serde::ts_seconds;
+use chrono::serde::ts_milliseconds;
 use chrono::DateTime;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
@@ -8,7 +8,7 @@ pub struct OutgoingMessage {
     message: String,
     name: Option<String>,
     dice_results: Option<Vec<i32>>,
-    #[serde(with = "ts_seconds")]
+    #[serde(with = "ts_milliseconds")]
     time: DateTime<Utc>,
 }
 

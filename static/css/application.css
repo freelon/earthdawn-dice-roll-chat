@@ -20,6 +20,10 @@
     /* border-style: dotted; */
 }
 
+.chatEntry .messagePart {
+    width: 100%;
+}
+
 .chatEntry .messagePart .request {
     color: gray;
     font-size: small;
@@ -31,6 +35,12 @@
     color: black;
     /* border-style: dashed; */
     margin: 0px;
+}
+
+.chatEntry .time {
+    font-style: italic;
+    font-size: small;
+    color: gray;
 }
 
 .systemMessage .messagePart .message {
