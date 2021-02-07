@@ -2,7 +2,7 @@
 //! And manages available rooms. Peers send messages to other peers in same
 //! room through `ChatServer`.
 
-use crate::room::{ChatRoom, Message};
+use crate::room::{ChatRoom, RoomMessage};
 
 use actix::prelude::*;
 use rand::{self, rngs::ThreadRng, Rng};
@@ -15,7 +15,7 @@ use std::collections::HashMap;
 #[derive(Message)]
 #[rtype(usize)]
 pub struct Connect {
-    pub addr: Recipient<Message>,
+    pub addr: Recipient<RoomMessage>,
 }
 
 /// Session is disconnected
@@ -43,7 +43,7 @@ pub struct RequestRoom {
 /// `ChatServer` manages chat rooms and responsible for coordinating chat
 /// session. implementation is super primitive
 pub struct ChatServer {
-    sessions: HashMap<usize, Recipient<Message>>,
+    sessions: HashMap<usize, Recipient<RoomMessage>>,
     rooms: HashMap<String, Addr<ChatRoom>>,
     rng: ThreadRng,
 }

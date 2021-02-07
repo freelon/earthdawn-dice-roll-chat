@@ -16,14 +16,14 @@ pub struct ClientMessage {
 /// ChatRoom sends this messages to session
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct Message(pub OutgoingMessageDTO);
+pub struct RoomMessage(pub OutgoingMessageDTO);
 
 #[derive(Message)]
 #[rtype(result = "()")]
 pub struct JoinRoomMessage {
-    id: usize,
-    name: String,
-    session_addr: Recipient<Message>,
+    pub id: usize,
+    pub name: String,
+    pub session_addr: Recipient<RoomMessage>,
 }
 
 #[derive(Message)]
@@ -35,7 +35,7 @@ pub struct LeaveRoomMessage {
 
 pub struct ChatRoom {
     name: String,
-    members: HashMap<usize, Recipient<Message>>,
+    members: HashMap<usize, Recipient<RoomMessage>>,
 }
 
 impl ChatRoom {
@@ -48,7 +48,8 @@ impl ChatRoom {
 
     fn send_to_all(&self, message: &OutgoingMessageDTO) {
         self.members.values().for_each(|session| {
-            session.do_send(Message(message.clone())).expect("sent a message to a chat session");
+            debug!("sending to session {:?}", session);
+            let _ = session.do_send(RoomMessage(message.clone()));
         });
     }
 }
@@ -62,6 +63,7 @@ impl Handler<ClientMessage> for ChatRoom {
     type Result = ();
 
     fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
+        debug!("got message {:?}", msg.msg);
         self.send_to_all(&msg.msg);
     }
 }
@@ -81,7 +83,7 @@ impl Handler<LeaveRoomMessage> for ChatRoom {
     type Result = ();
 
     fn handle(&mut self, msg: LeaveRoomMessage, _: &mut Context<Self>) {
-        self.send_to_all(&OutgoingMessageDTO::system(&format!("'{}' left the room", msg.name)));
         self.members.remove(&msg.id);
+        self.send_to_all(&OutgoingMessageDTO::system(&format!("'{}' left the room", msg.name)));
     }
 }
