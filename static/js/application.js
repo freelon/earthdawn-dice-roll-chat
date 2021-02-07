@@ -2,6 +2,8 @@
     class myWebsocketHandler {
         setupSocket() {
 
+            console.log("initializing connection")
+
             const wsUri =
                 (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
                 window.location.host +
@@ -19,12 +21,16 @@
                 console.log(event)
 
                 const eventContent = JSON.parse(event.data)
+                const isSystemMessage = eventContent.name == null
 
                 const pTag = document.createElement("div")
                 pTag.className = "chatEntry"
+                if (isSystemMessage)
+                    pTag.className += " systemMessage"
                 const namePart = document.createElement("div")
                 namePart.className = "name"
-                namePart.innerHTML = eventContent.name + ":"
+                if (!isSystemMessage)
+                    namePart.innerHTML = eventContent.name + ":"
                 pTag.append(namePart)
 
                 const messagePart = document.createElement("div")

@@ -33,6 +33,10 @@
     margin: 0px;
 }
 
+.systemMessage .messagePart .message {
+    font-weight: bold;
+}
+
 .main-view {
     overflow: hidden;
 }
