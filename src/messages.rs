@@ -3,7 +3,7 @@ use chrono::DateTime;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OutgoingMessageDTO {
     message: String,
     name: Option<String>,

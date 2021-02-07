@@ -99,7 +99,7 @@ impl Handler<server::Message> for WsChatSession {
     type Result = ();
 
     fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) {
-        ctx.text(msg.0);
+        ctx.text(msg.0.to_string());
     }
 }
 
@@ -212,7 +212,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                     // send message to chat server
                     self.server_addr.do_send(server::ClientMessage {
                         id: self.id,
-                        msg: msg.to_string(),
+                        msg: msg,
                         room: self.room.clone(),
                     })
                 }

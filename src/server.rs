@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 /// Chat server sends this messages to session
 #[derive(Message)]
 #[rtype(result = "()")]
-pub struct Message(pub String);
+pub struct Message(pub OutgoingMessageDTO);
 
 /// Message for chat server communications
 
@@ -36,7 +36,7 @@ pub struct ClientMessage {
     /// Id of the client session
     pub id: usize,
     /// Peer message
-    pub msg: String,
+    pub msg: OutgoingMessageDTO,
     /// Room name
     pub room: String,
 }
@@ -82,12 +82,12 @@ impl ChatServer {
 
 impl ChatServer {
     /// Send message to all users in the room
-    fn send_message(&self, room: &str, message: &str, skip_id: usize) {
+    fn send_message(&self, room: &str, message: &OutgoingMessageDTO, skip_id: usize) {
         if let Some(sessions) = self.rooms.get(room) {
             for id in sessions {
                 if *id != skip_id {
                     if let Some(addr) = self.sessions.get(id) {
-                        let _ = addr.do_send(Message(message.to_owned()));
+                        let _ = addr.do_send(Message(message.clone()));
                     }
                 }
             }
@@ -114,7 +114,7 @@ impl Handler<Connect> for ChatServer {
         // notify all users in same room
         self.send_message(
             &"Main".to_owned(),
-            &OutgoingMessageDTO::system("Someone joined").to_string(),
+            &OutgoingMessageDTO::system("Someone joined"),
             0,
         );
 
@@ -158,7 +158,7 @@ impl Handler<Disconnect> for ChatServer {
         for room in rooms {
             self.send_message(
                 &room,
-                &OutgoingMessageDTO::system("Someone disconnected").to_string(),
+                &OutgoingMessageDTO::system("Someone disconnected"),
                 0,
             );
         }
@@ -170,7 +170,7 @@ impl Handler<ClientMessage> for ChatServer {
     type Result = ();
 
     fn handle(&mut self, msg: ClientMessage, _: &mut Context<Self>) {
-        self.send_message(&msg.room, msg.msg.as_str(), 0);
+        self.send_message(&msg.room, &msg.msg, 0);
     }
 }
 
@@ -208,7 +208,7 @@ impl Handler<Join> for ChatServer {
         for room in rooms {
             self.send_message(
                 &room,
-                &OutgoingMessageDTO::system("Someone disconnected").to_string(),
+                &OutgoingMessageDTO::system("Someone disconnected"),
                 0,
             );
         }
@@ -220,7 +220,7 @@ impl Handler<Join> for ChatServer {
 
         self.send_message(
             &name,
-            &OutgoingMessageDTO::system("Someone connected").to_string(),
+            &OutgoingMessageDTO::system("Someone connected"),
             id,
         );
     }
