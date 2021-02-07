@@ -1,3 +1,6 @@
+const ROOM = "room";
+const NAME = "name";
+
 (() => {
     class myWebsocketHandler {
         setupSocket() {
@@ -15,6 +18,8 @@
                 const main = document.getElementById("chat-view")
                 // main.innerText = ""
                 main.classList.remove("disconnected")
+
+                this.autoJoinMessages()
             })
 
             this.socket.addEventListener("message", (event) => {
@@ -70,6 +75,20 @@
             }
 
             this.socket.send(message)
+        }
+
+        autoJoinMessages() {
+            const urlParams = new URLSearchParams(window.location.search)
+            
+            if (urlParams.has(ROOM)) {
+                let room = urlParams.get(ROOM)
+                this.submit("/join " + room)
+            }
+
+            if (urlParams.has(NAME)) {
+                let name = urlParams.get(NAME)
+                this.submit("/name " + name)
+            }
         }
     }
 
