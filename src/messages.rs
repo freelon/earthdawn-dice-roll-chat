@@ -44,15 +44,3 @@ impl OutgoingMessage {
         serde_json::to_string(&self).unwrap()
     }
 }
-
-mod test {
-    use crate::messages::OutgoingMessage;
-    use chrono::Utc;
-
-    #[test]
-    fn name() {
-        let om = OutgoingMessage::chat("hallo", "me");
-
-        println!("json: {}", serde_json::to_string(&om).unwrap());
-    }
-}

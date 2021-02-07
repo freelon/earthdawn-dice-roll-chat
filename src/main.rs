@@ -179,6 +179,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         "/name" => {
                             if v.len() == 2 {
                                 self.name = Some(v[1].to_owned());
+                                ctx.text(
+                                    OutgoingMessage::system(&format!(
+                                        "You are now known as: {}",
+                                        self.name.as_ref().unwrap()
+                                    ))
+                                    .to_string(),
+                                )
                             } else {
                                 ctx.text(
                                     OutgoingMessage::system("!!! name is required").to_string(),
