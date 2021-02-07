@@ -11,9 +11,11 @@ use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
 use chrono::Utc;
+use room::LeaveRoomMessage;
 
 mod dice;
 mod messages;
+mod room;
 mod server;
 
 /// How often heartbeat pings are sent
@@ -33,9 +35,9 @@ async fn chat_route(
         WsChatSession {
             id: 0,
             hb: Instant::now(),
-            room: "Main".to_owned(),
             name: None,
             server_addr: srv.get_ref().clone(),
+            room_addr: None,
         },
         &req,
         stream,
@@ -48,12 +50,12 @@ struct WsChatSession {
     /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     hb: Instant,
-    /// joined room
-    room: String,
     /// peer name
     name: Option<String>,
     /// Chat server
     server_addr: Addr<server::ChatServer>,
+    /// Current chat room
+    room_addr: Option<Addr<room::ChatRoom>>,
 }
 
 impl Actor for WsChatSession {
@@ -95,10 +97,10 @@ impl Actor for WsChatSession {
 }
 
 /// Handle messages from chat server, we simply send it to peer websocket
-impl Handler<server::Message> for WsChatSession {
+impl Handler<room::Message> for WsChatSession {
     type Result = ();
 
-    fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) {
+    fn handle(&mut self, msg: room::Message, ctx: &mut Self::Context) {
         ctx.text(msg.0.to_string());
     }
 }
@@ -159,16 +161,43 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         }
                         "/join" => {
                             if v.len() == 2 {
-                                self.room = v[1].to_owned();
-                                self.server_addr.do_send(server::Join {
-                                    id: self.id,
-                                    name: self.room.clone(),
-                                });
+                                if let Some(room_addr) = self.room_addr.as_ref() {
+                                    room_addr.do_send(LeaveRoomMessage {
+                                        name: self
+                                            .name
+                                            .as_ref()
+                                            .expect("Name must be provided here")
+                                            .to_owned(),
+                                        id: self.id,
+                                    });
+                                }
 
-                                ctx.text(
-                                    OutgoingMessageDTO::system(&format!("You joined room {}", v[1]))
-                                        .to_string(),
-                                );
+                                let room_name = v[1].to_owned();
+
+                                self.server_addr
+                                    .send(server::RequestRoom {
+                                        name: room_name.clone(),
+                                    })
+                                    .into_actor(self)
+                                    .then(move |res, x, ctx| {
+                                        match res {
+                                            Ok(room_addr) => {
+                                                x.room_addr = Some(room_addr);
+                                            }
+                                            _ => error!("Something is wrong"),
+                                        }
+
+                                        ctx.text(
+                                            OutgoingMessageDTO::system(&format!(
+                                                "You joined room {}",
+                                                room_name
+                                            ))
+                                            .to_string(),
+                                        );
+
+                                        fut::ready(())
+                                    })
+                                    .wait(ctx)
                             } else {
                                 ctx.text(
                                     OutgoingMessageDTO::system("!!! room name is required")
@@ -198,23 +227,31 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         ),
                     }
                 } else {
-                    let sender = if let Some(ref name_ref) = self.name {
-                        name_ref
-                    } else {
-                        DEFAULT_NAME
-                    };
+                    if let Some(room_address) = self.room_addr.as_ref() {
+                        let sender = if let Some(ref name_ref) = self.name {
+                            name_ref
+                        } else {
+                            DEFAULT_NAME
+                        };
 
-                    let msg = if m.starts_with('!') {
-                        OutgoingMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
+                        let msg = if m.starts_with('!') {
+                            OutgoingMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
+                        } else {
+                            OutgoingMessageDTO::chat(m, sender)
+                        };
+                        
+                        room_address.do_send(room::ClientMessage {
+                            id: self.id,
+                            msg: msg,
+                        });
                     } else {
-                        OutgoingMessageDTO::chat(m, sender)
-                    };
-                    // send message to chat server
-                    self.server_addr.do_send(server::ClientMessage {
-                        id: self.id,
-                        msg: msg,
-                        room: self.room.clone(),
-                    })
+                        ctx.text(
+                            OutgoingMessageDTO::system(
+                                "--- You have to join a room before sending messages",
+                            )
+                            .to_string(),
+                        )
+                    }
                 }
             }
             ws::Message::Binary(_) => error!("Unexpected binary"),
