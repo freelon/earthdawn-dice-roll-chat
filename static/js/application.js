@@ -79,16 +79,17 @@ const NAME = "name";
 
         autoJoinMessages() {
             const urlParams = new URLSearchParams(window.location.search)
+
+            if (urlParams.has(NAME)) {
+                let name = urlParams.get(NAME)
+                this.submit("/name " + name)
+            }
             
             if (urlParams.has(ROOM)) {
                 let room = urlParams.get(ROOM)
                 this.submit("/join " + room)
             }
 
-            if (urlParams.has(NAME)) {
-                let name = urlParams.get(NAME)
-                this.submit("/name " + name)
-            }
         }
     }
 
