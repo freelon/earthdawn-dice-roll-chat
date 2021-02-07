@@ -2,6 +2,7 @@
 extern crate log;
 
 use crate::dice::get_results;
+use crate::messages::OutgoingMessage;
 use std::time::{Duration, Instant};
 
 use actix::*;
@@ -12,6 +13,7 @@ use actix_web_actors::ws;
 use chrono::Utc;
 
 mod dice;
+mod messages;
 mod server;
 
 /// How often heartbeat pings are sent
@@ -163,22 +165,30 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                     name: self.room.clone(),
                                 });
 
-                                ctx.text(create_text_response(&format!("You joined room {}", v[1])));
+                                ctx.text(
+                                    OutgoingMessage::system(&format!("You joined room {}", v[1]))
+                                        .to_string(),
+                                );
                             } else {
-                                ctx.text(create_text_response("!!! room name is required"));
+                                ctx.text(
+                                    OutgoingMessage::system("!!! room name is required")
+                                        .to_string(),
+                                );
                             }
                         }
                         "/name" => {
                             if v.len() == 2 {
                                 self.name = Some(v[1].to_owned());
                             } else {
-                                ctx.text(create_text_response("!!! name is required"));
+                                ctx.text(
+                                    OutgoingMessage::system("!!! name is required").to_string(),
+                                );
                             }
                         }
-                        _ => ctx.text(create_text_response(&format!(
-                            "!!! unknown command: {:?}",
-                            m
-                        ))),
+                        _ => ctx.text(
+                            OutgoingMessage::system(&format!("!!! unknown command: {:?}", m))
+                                .to_string(),
+                        ),
                     }
                 } else {
                     let sender = if let Some(ref name_ref) = self.name {
@@ -188,14 +198,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                     };
 
                     let msg = if m.starts_with('!') {
-                        create_dice_response(m, &get_results(&m[1..]), &sender)
+                        OutgoingMessage::dice_result(m, &get_results(&m[1..]), &sender)
                     } else {
-                        create_chat_response(m, &sender)
+                        OutgoingMessage::chat(m, sender)
                     };
                     // send message to chat server
                     self.addr.do_send(server::ClientMessage {
                         id: self.id,
-                        msg,
+                        msg: msg.to_string(),
                         room: self.room.clone(),
                     })
                 }
@@ -211,37 +221,6 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
             ws::Message::Nop => (),
         }
     }
-}
-
-fn create_text_response(message: &str) -> String {
-    format!(
-        "{{\"message\": \"{}\", \"name\": \"system\", \"time\": {} }}",
-        message,
-        Utc::now().timestamp()
-    )
-}
-
-fn create_chat_response(message: &str, sender: &str) -> String {
-    format!(
-        "{{\"message\": \"{}\", \"name\": \"{}\", \"time\": {}  }}",
-        message,
-        sender,
-        Utc::now().timestamp()
-    )
-}
-
-fn create_dice_response(message: &str, dice_results: &Vec<i32>, sender: &str) -> String {
-    format!(
-        "{{\"message\": \"{}\", \"diceResults\": [{}], \"name\": \"{}\", \"time\": {}  }}",
-        message,
-        dice_results
-            .iter()
-            .map(|r| format!("{}", r))
-            .collect::<Vec<String>>()
-            .join(","),
-        sender,
-        Utc::now().timestamp()
-    )
 }
 
 impl WsChatSession {

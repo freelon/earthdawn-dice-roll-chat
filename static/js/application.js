@@ -37,10 +37,10 @@
                 message.className = "message"
                 messagePart.append(message)
 
-                if (eventContent.diceResults == null) {
+                if (eventContent.dice_results == null) {
                     message.innerHTML = eventContent.message
                 } else {
-                    message.innerHTML = eventContent.diceResults.join(" + ") + " = " + eventContent.diceResults.reduce((a, b) => a + b, 0)
+                    message.innerHTML = eventContent.dice_results.join(" + ") + " = " + eventContent.dice_results.reduce((a, b) => a + b, 0)
                     request.innerHTML = eventContent.message
                 }
 
