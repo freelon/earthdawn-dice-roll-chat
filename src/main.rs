@@ -2,7 +2,7 @@
 extern crate log;
 
 use crate::dice::get_results;
-use crate::messages::OutgoingMessage;
+use crate::messages::OutgoingMessageDTO;
 use std::time::{Duration, Instant};
 
 use actix::*;
@@ -10,18 +10,17 @@ use actix_files as fs;
 use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
-use chrono::Utc;
+use room::LeaveRoomMessage;
 
 mod dice;
 mod messages;
+mod room;
 mod server;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
-
-const DEFAULT_NAME: &str = "anonymous";
 
 /// Entry point for our websocket route
 async fn chat_route(
@@ -33,9 +32,9 @@ async fn chat_route(
         WsChatSession {
             id: 0,
             hb: Instant::now(),
-            room: "Main".to_owned(),
             name: None,
-            addr: srv.get_ref().clone(),
+            server_addr: srv.get_ref().clone(),
+            room_addr: None,
         },
         &req,
         stream,
@@ -48,12 +47,12 @@ struct WsChatSession {
     /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
     /// otherwise we drop connection.
     hb: Instant,
-    /// joined room
-    room: String,
     /// peer name
     name: Option<String>,
     /// Chat server
-    addr: Addr<server::ChatServer>,
+    server_addr: Addr<server::ChatServer>,
+    /// Current chat room
+    room_addr: Option<Addr<room::ChatRoom>>,
 }
 
 impl Actor for WsChatSession {
@@ -71,7 +70,7 @@ impl Actor for WsChatSession {
         // HttpContext::state() is instance of WsChatSessionState, state is shared
         // across all routes within application
         let addr = ctx.address();
-        self.addr
+        self.server_addr
             .send(server::Connect {
                 addr: addr.recipient(),
             })
@@ -89,17 +88,17 @@ impl Actor for WsChatSession {
 
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         // notify chat server
-        self.addr.do_send(server::Disconnect { id: self.id });
+        self.server_addr.do_send(server::Disconnect { id: self.id });
         Running::Stop
     }
 }
 
 /// Handle messages from chat server, we simply send it to peer websocket
-impl Handler<server::Message> for WsChatSession {
+impl Handler<room::RoomMessage> for WsChatSession {
     type Result = ();
 
-    fn handle(&mut self, msg: server::Message, ctx: &mut Self::Context) {
-        ctx.text(msg.0);
+    fn handle(&mut self, msg: room::RoomMessage, ctx: &mut Self::Context) {
+        ctx.text(msg.0.to_string());
     }
 }
 
@@ -123,12 +122,15 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                 self.hb = Instant::now();
             }
             ws::Message::Text(text) => {
-                debug!(
-                    "[{}] Msg from >{:?}: '{}'",
-                    Utc::now().format("%T"),
-                    self.name,
-                    text
-                );
+                debug!("Msg from >{:?}: '{}'", self.name, text);
+
+                if self.name.is_none() && !text.starts_with("/name") {
+                    ctx.text(
+                        OutgoingMessageDTO::system("You need so set a name before doing anything else (i.e. /name ABC)")
+                        .to_string(),
+                    );
+                    return;
+                }
 
                 let m = text.trim();
                 // we check for /sss type of messages
@@ -138,7 +140,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         "/list" => {
                             // Send ListRooms message to chat server and wait for
                             // response
-                            self.addr
+                            self.server_addr
                                 .send(server::ListRooms)
                                 .into_actor(self)
                                 .then(|res, _, ctx| {
@@ -159,19 +161,52 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         }
                         "/join" => {
                             if v.len() == 2 {
-                                self.room = v[1].to_owned();
-                                self.addr.do_send(server::Join {
-                                    id: self.id,
-                                    name: self.room.clone(),
-                                });
+                                if let Some(room_addr) = self.room_addr.as_ref() {
+                                    room_addr.do_send(LeaveRoomMessage {
+                                        name: self
+                                            .name
+                                            .as_ref()
+                                            .expect("Name must be provided here")
+                                            .to_owned(),
+                                        id: self.id,
+                                    });
+                                }
 
-                                ctx.text(
-                                    OutgoingMessage::system(&format!("You joined room {}", v[1]))
-                                        .to_string(),
-                                );
+                                let room_name = v[1].to_owned();
+
+                                self.server_addr
+                                    .send(server::RequestRoom {
+                                        name: room_name.clone(),
+                                    })
+                                    .into_actor(self)
+                                    .then(move |res, this, ctx| {
+                                        match res {
+                                            Ok(room_addr) => {
+                                                this.room_addr = Some(room_addr.clone());
+
+                                                room_addr.do_send(room::JoinRoomMessage {
+                                                    id: this.id,
+                                                    name: this.name.as_ref().unwrap().to_owned(),
+                                                    session_addr: ctx.address().into(),
+                                                });
+
+                                                ctx.text(
+                                                    OutgoingMessageDTO::system(&format!(
+                                                        "You joined room {}",
+                                                        room_name
+                                                    ))
+                                                    .to_string(),
+                                                );
+                                            }
+                                            _ => error!("Something is wrong"),
+                                        }
+
+                                        fut::ready(())
+                                    })
+                                    .wait(ctx)
                             } else {
                                 ctx.text(
-                                    OutgoingMessage::system("!!! room name is required")
+                                    OutgoingMessageDTO::system("!!! room name is required")
                                         .to_string(),
                                 );
                             }
@@ -180,7 +215,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                             if v.len() == 2 {
                                 self.name = Some(v[1].to_owned());
                                 ctx.text(
-                                    OutgoingMessage::system(&format!(
+                                    OutgoingMessageDTO::system(&format!(
                                         "You are now known as: {}",
                                         self.name.as_ref().unwrap()
                                     ))
@@ -188,33 +223,37 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                 )
                             } else {
                                 ctx.text(
-                                    OutgoingMessage::system("!!! name is required").to_string(),
+                                    OutgoingMessageDTO::system("!!! name is required").to_string(),
                                 );
                             }
                         }
                         _ => ctx.text(
-                            OutgoingMessage::system(&format!("!!! unknown command: {:?}", m))
+                            OutgoingMessageDTO::system(&format!("!!! unknown command: {:?}", m))
                                 .to_string(),
                         ),
                     }
                 } else {
-                    let sender = if let Some(ref name_ref) = self.name {
-                        name_ref
-                    } else {
-                        DEFAULT_NAME
-                    };
+                    if let Some(room_address) = self.room_addr.as_ref() {
+                        let sender = self.name.as_ref().unwrap();
 
-                    let msg = if m.starts_with('!') {
-                        OutgoingMessage::dice_result(m, &get_results(&m[1..]), &sender)
+                        let msg = if m.starts_with('!') {
+                            OutgoingMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
+                        } else {
+                            OutgoingMessageDTO::chat(m, &sender)
+                        };
+
+                        room_address.do_send(room::ClientMessage {
+                            id: self.id,
+                            msg: msg,
+                        });
                     } else {
-                        OutgoingMessage::chat(m, sender)
-                    };
-                    // send message to chat server
-                    self.addr.do_send(server::ClientMessage {
-                        id: self.id,
-                        msg: msg.to_string(),
-                        room: self.room.clone(),
-                    })
+                        ctx.text(
+                            OutgoingMessageDTO::system(
+                                "--- You have to join a room before sending messages",
+                            )
+                            .to_string(),
+                        )
+                    }
                 }
             }
             ws::Message::Binary(_) => error!("Unexpected binary"),
@@ -242,7 +281,7 @@ impl WsChatSession {
                 println!("Websocket Client heartbeat failed, disconnecting!");
 
                 // notify chat server
-                act.addr.do_send(server::Disconnect { id: act.id });
+                act.server_addr.do_send(server::Disconnect { id: act.id });
 
                 // stop actor
                 ctx.stop();
