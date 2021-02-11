@@ -9,7 +9,8 @@ pub fn get_results(request: &str) -> Vec<i32> {
         request
     };
 
-    let dice_result: Vec<i32> = s.split('+')
+    let dice_result: Vec<i32> = s
+        .split('+')
         .map(|part| run(part, should_explode))
         .filter_map(|x| x)
         .collect();

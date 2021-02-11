@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{messages::OutgoingMessageDTO};
+use crate::messages::{OutgoingMessageDTO, TextMessageDTO};
 use actix::prelude::*;
 
 /// Send message to specific room
@@ -10,7 +10,7 @@ pub struct ClientMessage {
     /// Id of the client session
     pub id: usize,
     /// Peer message
-    pub msg: OutgoingMessageDTO,
+    pub msg: TextMessageDTO,
 }
 
 /// ChatRoom sends this messages to session
@@ -46,10 +46,12 @@ impl ChatRoom {
         }
     }
 
-    fn send_to_all(&self, message: &OutgoingMessageDTO) {
+    fn send_to_all(&self, message: &TextMessageDTO) {
         self.members.values().for_each(|session| {
             debug!("sending to session {:?}", session);
-            let _ = session.do_send(RoomMessage(message.clone()));
+            let _ = session.do_send(RoomMessage(OutgoingMessageDTO::TextMessage(
+                message.clone(),
+            )));
         });
     }
 }
@@ -73,7 +75,10 @@ impl Handler<JoinRoomMessage> for ChatRoom {
     type Result = ();
 
     fn handle(&mut self, msg: JoinRoomMessage, _: &mut Context<Self>) {
-        self.send_to_all(&OutgoingMessageDTO::system(&format!("'{}' joined the room", msg.name)));
+        self.send_to_all(&TextMessageDTO::system(&format!(
+            "'{}' joined the room",
+            msg.name
+        )));
         self.members.insert(msg.id, msg.session_addr);
     }
 }
@@ -84,6 +89,9 @@ impl Handler<LeaveRoomMessage> for ChatRoom {
 
     fn handle(&mut self, msg: LeaveRoomMessage, _: &mut Context<Self>) {
         self.members.remove(&msg.id);
-        self.send_to_all(&OutgoingMessageDTO::system(&format!("'{}' left the room", msg.name)));
+        self.send_to_all(&TextMessageDTO::system(&format!(
+            "'{}' left the room",
+            msg.name
+        )));
     }
 }

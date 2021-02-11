@@ -2,7 +2,7 @@
 extern crate log;
 
 use crate::dice::get_results;
-use crate::messages::OutgoingMessageDTO;
+use crate::messages::TextMessageDTO;
 use std::time::{Duration, Instant};
 
 use actix::*;
@@ -10,6 +10,7 @@ use actix_files as fs;
 use actix_web::{web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
+use messages::OutgoingMessageDTO;
 use room::LeaveRoomMessage;
 
 mod dice;
@@ -98,7 +99,7 @@ impl Handler<room::RoomMessage> for WsChatSession {
     type Result = ();
 
     fn handle(&mut self, msg: room::RoomMessage, ctx: &mut Self::Context) {
-        ctx.text(msg.0.to_string());
+        ctx.text(msg.0.to_json());
     }
 }
 
@@ -126,8 +127,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
 
                 if self.name.is_none() && !text.starts_with("/name") {
                     ctx.text(
-                        OutgoingMessageDTO::system("You need so set a name before doing anything else (i.e. /name ABC)")
-                        .to_string(),
+                        OutgoingMessageDTO::TextMessage(TextMessageDTO::system(
+                            "You need so set a name before doing anything else (i.e. /name ABC)",
+                        ))
+                        .to_json(),
                     );
                     return;
                 }
@@ -191,11 +194,13 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                                 });
 
                                                 ctx.text(
-                                                    OutgoingMessageDTO::system(&format!(
-                                                        "You joined room {}",
-                                                        room_name
-                                                    ))
-                                                    .to_string(),
+                                                    OutgoingMessageDTO::TextMessage(
+                                                        TextMessageDTO::system(&format!(
+                                                            "You joined room {}",
+                                                            room_name
+                                                        )),
+                                                    )
+                                                    .to_json(),
                                                 );
                                             }
                                             _ => error!("Something is wrong"),
@@ -206,8 +211,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                     .wait(ctx)
                             } else {
                                 ctx.text(
-                                    OutgoingMessageDTO::system("!!! room name is required")
-                                        .to_string(),
+                                    OutgoingMessageDTO::TextMessage(TextMessageDTO::system(
+                                        "!!! room name is required",
+                                    ))
+                                    .to_json(),
                                 );
                             }
                         }
@@ -215,21 +222,18 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                             if v.len() == 2 {
                                 self.name = Some(v[1].to_owned());
                                 ctx.text(
-                                    OutgoingMessageDTO::system(&format!(
+                                    system_message(&format!(
                                         "You are now known as: {}",
                                         self.name.as_ref().unwrap()
                                     ))
-                                    .to_string(),
+                                    .to_json(),
                                 )
                             } else {
-                                ctx.text(
-                                    OutgoingMessageDTO::system("!!! name is required").to_string(),
-                                );
+                                ctx.text(system_message("!!! name is required").to_json());
                             }
                         }
                         _ => ctx.text(
-                            OutgoingMessageDTO::system(&format!("!!! unknown command: {:?}", m))
-                                .to_string(),
+                            system_message(&format!("!!! unknown command: {:?}", m)).to_json(),
                         ),
                     }
                 } else {
@@ -237,9 +241,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         let sender = self.name.as_ref().unwrap();
 
                         let msg = if m.starts_with('!') {
-                            OutgoingMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
+                            TextMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
                         } else {
-                            OutgoingMessageDTO::chat(m, &sender)
+                            TextMessageDTO::chat(m, &sender)
                         };
 
                         room_address.do_send(room::ClientMessage {
@@ -248,10 +252,8 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         });
                     } else {
                         ctx.text(
-                            OutgoingMessageDTO::system(
-                                "--- You have to join a room before sending messages",
-                            )
-                            .to_string(),
+                            system_message("--- You have to join a room before sending messages")
+                                .to_json(),
                         )
                     }
                 }
@@ -293,6 +295,10 @@ impl WsChatSession {
             ctx.ping(b"");
         });
     }
+}
+
+fn system_message(test: &str) -> OutgoingMessageDTO {
+    OutgoingMessageDTO::TextMessage(TextMessageDTO::system(test))
 }
 
 #[actix_web::main]

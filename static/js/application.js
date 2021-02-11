@@ -26,47 +26,52 @@ const NAME = "name";
                 console.log(event)
 
                 const eventContent = JSON.parse(event.data)
-                const isSystemMessage = eventContent.name == null
-
-                const pTag = document.createElement("div")
-                pTag.className = "chatEntry"
-                if (isSystemMessage)
-                    pTag.className += " systemMessage"
-                const namePart = document.createElement("div")
-                namePart.className = "name"
-                if (!isSystemMessage)
-                    namePart.innerHTML = eventContent.name + ":"
-                pTag.append(namePart)
-
-                const messagePart = document.createElement("div")
-                messagePart.className = "messagePart"
-                pTag.append(messagePart)
-                const request = document.createElement("div")
-                request.className = "request"
-                messagePart.append(request)
-                const message = document.createElement("div")
-                message.className = "message"
-                messagePart.append(message)
-
-                if (eventContent.dice_results == null) {
-                    message.innerHTML = eventContent.message
-                } else {
-                    message.innerHTML = eventContent.dice_results.join(" + ") + " = " + eventContent.dice_results.reduce((a, b) => a + b, 0)
-                    request.innerHTML = eventContent.message
-                }
-
-                const time = document.createElement("div")
-                time.className = "time"
-                time.innerHTML = this.timeFromTimestamp(eventContent.time)
-                pTag.append(time)
-
-                document.getElementById("main").prepend(pTag)
+                if (eventContent.TextMessage)
+                    this.handleTextMessage(eventContent.TextMessage)
             })
 
             this.socket.addEventListener("close", () => {
                 document.getElementById("chat-view").classList.add("disconnected")
                 this.setupSocket()
             })
+        }
+
+        handleTextMessage(eventContent) {
+            const isSystemMessage = eventContent.name == null;
+
+            const pTag = document.createElement("div");
+            pTag.className = "chatEntry";
+            if (isSystemMessage)
+                pTag.className += " systemMessage";
+            const namePart = document.createElement("div");
+            namePart.className = "name";
+            if (!isSystemMessage)
+                namePart.innerHTML = eventContent.name + ":";
+            pTag.append(namePart);
+
+            const messagePart = document.createElement("div");
+            messagePart.className = "messagePart";
+            pTag.append(messagePart);
+            const request = document.createElement("div");
+            request.className = "request";
+            messagePart.append(request);
+            const message = document.createElement("div");
+            message.className = "message";
+            messagePart.append(message);
+
+            if (eventContent.dice_results == null) {
+                message.innerHTML = eventContent.message;
+            } else {
+                message.innerHTML = eventContent.dice_results.join(" + ") + " = " + eventContent.dice_results.reduce((a, b) => a + b, 0);
+                request.innerHTML = eventContent.message;
+            }
+
+            const time = document.createElement("div");
+            time.className = "time";
+            time.innerHTML = this.timeFromTimestamp(eventContent.time);
+            pTag.append(time);
+
+            document.getElementById("main").prepend(pTag);
         }
 
         submit(msg) {
