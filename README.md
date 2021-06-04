@@ -6,6 +6,10 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.3
+
+* Added message templates that are stored as a query parameter.
+
 ### 0.2
 
 * The username and last entered room are appended to the URL as query parameters and will be used automatically upon connecting. After a connection loss, these are used to rejoin the previous room. They can also be used to create a bookmark, allowing a user to "save" its name and room.
