@@ -1,7 +1,6 @@
 use rand::prelude::*;
 
 pub fn get_results(request: &str) -> Vec<i32> {
-
     let request = strip_text(request);
     let should_explode = request.starts_with("!");
 
@@ -27,10 +26,14 @@ pub fn get_results(request: &str) -> Vec<i32> {
 fn run(input: &str, should_explode: bool) -> Option<i32> {
     if input.contains('d') {
         let parts: Vec<&str> = input.split('d').collect();
-        let a = if let Ok(i) = parts[0].parse::<u32>() {
-            i
+        let a = if parts[0].is_empty() {
+            1
         } else {
-            return None;
+            if let Ok(i) = parts[0].parse::<u32>() {
+                i
+            } else {
+                return None;
+            }
         };
         let b = if let Ok(i) = parts[1].parse::<u32>() {
             i
