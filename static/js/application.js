@@ -72,6 +72,9 @@ const NAME = "name";
             pTag.append(time);
 
             document.getElementById("main").prepend(pTag);
+
+            if (isSystemMessage)
+                this.updateURLSearchParameters(eventContent.message)
         }
 
         submit(msg) {
@@ -100,6 +103,29 @@ const NAME = "name";
                 this.submit("/join " + room)
             }
 
+        }
+
+        updateURLSearchParameters(message) {
+            const JOIN_MESSAGE_PREXIFX = "You joined room ";
+            const NAME_MESSAGE_PREFIX = "You are now known as: "
+
+            if (message.startsWith(JOIN_MESSAGE_PREXIFX)) {
+                let roomName = message.split(JOIN_MESSAGE_PREXIFX)[1]
+                this.updateURLSearchParameter("room", roomName)
+            }
+
+            if (message.startsWith(NAME_MESSAGE_PREFIX)) {
+                let userName = message.split(NAME_MESSAGE_PREFIX)[1]
+                this.updateURLSearchParameter("name", userName)
+            }
+        }
+
+        updateURLSearchParameter(key, value) {
+            const url = new URL(window.location)
+            const urlParams = new URLSearchParams(url.search)
+            urlParams.set(key, value)
+            url.search = urlParams
+            history.replaceState({}, null, url)
         }
 
         timeFromTimestamp(timestamp) {
