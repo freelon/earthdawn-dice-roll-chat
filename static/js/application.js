@@ -152,3 +152,35 @@ const NAME = "name";
             websocketClass.submit();
         })
 })()
+
+var app = new Vue({
+    el: '#app',
+    data: {
+        message: 'Hello Vue!',
+        messageTemplates: [
+            { text: '!1d6 Ini', title: 'Initiative' },
+            { text: 'clear initiatives', title: 'Clear Initiatives' }
+        ],
+        edit: false,
+        toggleButton: {
+            text: 'Edit'
+        }
+    },
+    methods: {
+        toggleEdit: function() {
+            app.edit = !app.edit
+            app.toggleButton.text = app.edit ? "Done" : "Edit"
+
+            // TODO if now edit==false, store the message templates in the url
+        },
+        putToInputText: function(template) {
+            const input = document.getElementById("message")
+            input.value = template.text
+        },
+        executeTemplate: function(template) {
+            this.putToInputText(template)
+            const submitButton = document.getElementById("button_chat")
+            submitButton.click()
+        }
+    }
+})
