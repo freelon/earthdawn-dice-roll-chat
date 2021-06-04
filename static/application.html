@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <script type="application/javascript" defer="defer" src="js/application.js"></script>
+  <script src="https://unpkg.com/vue"></script>
   <link rel="stylesheet" type="text/css" href="css/application.css">
   <title>
     Earthdawn Dice Rolling Chat
@@ -26,7 +27,8 @@
         <input id="message" type="text">
         <input type="submit" value="Go" id="button_chat">
       </form>
-      <span id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
+      <span
+        id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
       <br>
       <main id="main"></main>
     </div>
@@ -69,6 +71,28 @@
         <button onclick="document.getElementById('message').value ='!!1d20+2d10+1d8'">28</button>
         <button onclick="document.getElementById('message').value ='!!1d20+1d12+1d10+1d8'">29</button>
         <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d8+2d6'">30</button>
+      </div>
+
+      <div id="app">
+        <h4>Message Templates</h4>
+        <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
+        <button v-if="edit" v-on:click="messageTemplates.push({})">+</button>
+        <ul>
+          <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
+            <div v-if="edit">
+              Title: <input v-model="template.title">
+              Message: <input v-model="template.text">
+              <button v-on:click="messageTemplates.splice(templateIndex, 1)">&#10799</button>
+            </div>
+            <div v-if="!edit">
+              <span class="title">{{ template.title }}</span>
+              <span v-on:click="putToInputText(template)">&#9998</span>
+              <span v-on:click="executeTemplate(template)">&#9658</span>
+              <br>
+              <span class="text">{{ template.text }}</span>
+            </div>
+          </li>
+        </ul>
       </div>
 
       <div class="target_numbers">
