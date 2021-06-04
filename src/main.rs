@@ -127,7 +127,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
 
                 if self.name.is_none() && !text.starts_with("/name") {
                     ctx.text(
-                        system_message("You need so set a name before doing anything else (i.e. /name ABC)")
+                        system_message(
+                            "You need so set a name before doing anything else (i.e. /name ABC)",
+                        )
                         .to_json(),
                     );
                     return;
@@ -250,8 +252,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         });
                     } else {
                         ctx.text(
-                            system_message("You have to join a room before sending messages (i.e. /join Main)")
-                                .to_json(),
+                            system_message(
+                                "You have to join a room before sending messages (i.e. /join Main)",
+                            )
+                            .to_json(),
                         )
                     }
                 }

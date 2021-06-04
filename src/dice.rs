@@ -1,6 +1,8 @@
 use rand::prelude::*;
 
 pub fn get_results(request: &str) -> Vec<i32> {
+
+    let request = strip_text(request);
     let should_explode = request.starts_with("!");
 
     let s = if should_explode {
@@ -65,4 +67,12 @@ fn roll_single(x: u32, should_explode: bool) -> i32 {
         }
     }
     result
+}
+
+fn strip_text(input: &str) -> &str {
+    if input.contains(" ") {
+        input.split(" ").next().unwrap()
+    } else {
+        input
+    }
 }
