@@ -1,5 +1,6 @@
 const ROOM = "room";
 const NAME = "name";
+const SETTINGS = "settings";
 
 (() => {
     class myWebsocketHandler {
@@ -111,21 +112,13 @@ const NAME = "name";
 
             if (message.startsWith(JOIN_MESSAGE_PREXIFX)) {
                 let roomName = message.split(JOIN_MESSAGE_PREXIFX)[1]
-                this.updateURLSearchParameter("room", roomName)
+                updateURLSearchParameter("room", roomName)
             }
 
             if (message.startsWith(NAME_MESSAGE_PREFIX)) {
                 let userName = message.split(NAME_MESSAGE_PREFIX)[1]
-                this.updateURLSearchParameter("name", userName)
+                updateURLSearchParameter("name", userName)
             }
-        }
-
-        updateURLSearchParameter(key, value) {
-            const url = new URL(window.location)
-            const urlParams = new URLSearchParams(url.search)
-            urlParams.set(key, value)
-            url.search = urlParams
-            history.replaceState({}, null, url)
         }
 
         timeFromTimestamp(timestamp) {
@@ -153,31 +146,52 @@ const NAME = "name";
         })
 })()
 
+function updateURLSearchParameter(key, value) {
+    const url = new URL(window.location)
+    const urlParams = new URLSearchParams(url.search)
+    urlParams.set(key, value)
+    url.search = urlParams
+    history.replaceState({}, null, url)
+}
+
+function loadTemplates() {
+    const urlParams = new URLSearchParams(window.location.search)
+
+    if (urlParams.has(SETTINGS)) {
+        let base64Settings = urlParams.get(SETTINGS)
+        let serializedSettings = atob(base64Settings)
+        let settings = JSON.parse(serializedSettings)
+        return settings.messageTemplates
+    } else {
+        return []
+    }
+}
+
 var app = new Vue({
     el: '#app',
     data: {
         message: 'Hello Vue!',
-        messageTemplates: [
-            { text: '!1d6 Ini', title: 'Initiative' },
-            { text: 'clear initiatives', title: 'Clear Initiatives' }
-        ],
+        messageTemplates: loadTemplates(),
         edit: false,
         toggleButton: {
             text: 'Edit'
         }
     },
     methods: {
-        toggleEdit: function() {
+        toggleEdit: function () {
             app.edit = !app.edit
             app.toggleButton.text = app.edit ? "Done" : "Edit"
 
             // TODO if now edit==false, store the message templates in the url
+            let serializedSettings = JSON.stringify({ messageTemplates: app.messageTemplates })
+            let base64Settings = btoa(serializedSettings)
+            updateURLSearchParameter("settings", base64Settings)
         },
-        putToInputText: function(template) {
+        putToInputText: function (template) {
             const input = document.getElementById("message")
             input.value = template.text
         },
-        executeTemplate: function(template) {
+        executeTemplate: function (template) {
             this.putToInputText(template)
             const submitButton = document.getElementById("button_chat")
             submitButton.click()
