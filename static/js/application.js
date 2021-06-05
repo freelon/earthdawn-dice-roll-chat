@@ -190,6 +190,7 @@ var app = new Vue({
         putToInputText: function (template) {
             const input = document.getElementById("message")
             input.value = template.text
+            input.focus()
         },
         executeTemplate: function (template) {
             this.putToInputText(template)
