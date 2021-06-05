@@ -1,5 +1,7 @@
 .chatEntry {
     display: flex;
+    background-color: lightyellow;
+    border-color: aquamarine;
     border-style: solid;
     border-width: 1px;
     padding: 4px;
