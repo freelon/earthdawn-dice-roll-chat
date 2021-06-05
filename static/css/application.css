@@ -51,7 +51,7 @@
     overflow: hidden;
 }
 
-.main-view > * {
+.main-view>* {
     padding: 3em;
 }
 
@@ -60,7 +60,7 @@
     float: left;
 }
 
-.disconnected > #chat-form {
+.disconnected>#chat-form {
     display: none;
 }
 
@@ -68,7 +68,7 @@
     display: none;
 }
 
-.disconnected > #disconnected-message {
+.disconnected>#disconnected-message {
     display: inline;
 }
 
@@ -97,4 +97,8 @@
 
 #app .template-entry .title {
     margin: 0px;
+}
+
+.symbol-button {
+    font-size: large;
 }

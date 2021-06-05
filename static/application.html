@@ -82,12 +82,12 @@
             <div v-if="edit">
               Title: <input v-model="template.title">
               Message: <input v-model="template.text">
-              <button v-on:click="messageTemplates.splice(templateIndex, 1)">&#10799</button>
+              <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button">&#10799</button>
             </div>
             <div v-if="!edit">
               <span class="title">{{ template.title }}</span>
-              <span v-on:click="putToInputText(template)">&#9998</span>
-              <span v-on:click="executeTemplate(template)">&#9658</span>
+              <button v-on:click="putToInputText(template)" class="symbol-button">__&#9998</button>
+              <button v-on:click="executeTemplate(template)" class="symbol-button">&#9658</button>
               <br>
               <span class="text">{{ template.text }}</span>
             </div>
