@@ -76,6 +76,8 @@ const SETTINGS = "settings";
 
             if (isSystemMessage)
                 this.updateURLSearchParameters(eventContent.message)
+            else
+                updateInitiatives(eventContent)
         }
 
         submit(msg) {
@@ -167,6 +169,25 @@ function loadTemplates() {
     }
 }
 
+const iniRegex = /!.*\(ini\)(.*)/
+function updateInitiatives(eventContent) {
+    if (eventContent.message == "(clear initiative)")
+        app.initiativeRolls = []
+    
+    let matches = eventContent.message.match(iniRegex)
+    if (matches != null) {
+        let description = matches.pop().trim()
+        let rolls = app.initiativeRolls.filter(i => i.name != eventContent.name)
+        rolls.push({
+            result: eventContent.dice_results.reduce((a, b) => a + b, 0),
+            description: description,
+            name: eventContent.name
+        })
+        rolls.sort((a,b) => b.result-a.result)
+        app.initiativeRolls = rolls
+    }
+}
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -175,7 +196,14 @@ var app = new Vue({
         edit: false,
         toggleButton: {
             text: 'Edit'
-        }
+        },
+        initiativeRolls: [
+            {
+                result: 17,
+                name: "jo",
+                description: "huiui"
+            }
+        ]
     },
     methods: {
         toggleEdit: function () {

@@ -74,26 +74,38 @@
       </div>
 
       <div id="app">
-        <h4>Message Templates</h4>
-        <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
-        <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
-        <ul>
-          <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
-            <div v-if="edit">
-              <input v-model="template.title" placeholder="Template name">
-              <br>
-              <input v-model="template.text" placeholder="Template content">
-              <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button" title="Delete template">x</button>
-            </div>
-            <div v-if="!edit">
-              <span class="title">{{ template.title }}</span>
-              <button v-on:click="putToInputText(template)" class="symbol-button" title="Write to message text">__&#9998</button>
-              <button v-on:click="executeTemplate(template)" class="symbol-button" title="Send to chat">&#9658</button>
-              <br>
-              <span class="text">{{ template.text }}</span>
-            </div>
-          </li>
-        </ul>
+        <div>
+          <h4>Message Templates</h4>
+          <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
+          <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
+          <ul>
+            <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
+              <div v-if="edit">
+                <input v-model="template.title" placeholder="Template name">
+                <br>
+                <input v-model="template.text" placeholder="Template content">
+                <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button" title="Delete template">x</button>
+              </div>
+              <div v-if="!edit">
+                <span class="title">{{ template.title }}</span>
+                <button v-on:click="putToInputText(template)" class="symbol-button" title="Write to message text">__&#9998</button>
+                <button v-on:click="executeTemplate(template)" class="symbol-button" title="Send to chat">&#9658</button>
+                <br>
+                <span class="text">{{ template.text }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        
+        <div id="iniDiv">
+          <h4 title="Send '!!1d6 (ini) <description>' to roll your initiative. GM sends '(clear initiative) to begin a new round.'">Initiative<sup>i</sup></h4>
+          <ul>
+            <li v-for="iniRoll in initiativeRolls">
+              <span>({{ iniRoll.result }}) {{ iniRoll.name }}: {{ iniRoll.description }}</span>
+            </li>
+          </ul>
+          <span v-if="initiativeRolls.length == 0">No initiatives rolled</span>
+        </div>
       </div>
 
       <div class="target_numbers">
