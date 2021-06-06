@@ -6,6 +6,10 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.4
+
+* Added initiative management
+
 ### 0.3
 
 * Added message templates that are stored as a query parameter.
