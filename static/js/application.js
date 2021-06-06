@@ -197,13 +197,7 @@ var app = new Vue({
         toggleButton: {
             text: 'Edit'
         },
-        initiativeRolls: [
-            {
-                result: 17,
-                name: "jo",
-                description: "huiui"
-            }
-        ]
+        initiativeRolls: []
     },
     methods: {
         toggleEdit: function () {
