@@ -180,7 +180,7 @@ var app = new Vue({
     methods: {
         toggleEdit: function () {
             app.edit = !app.edit
-            app.toggleButton.text = app.edit ? "Done" : "Edit"
+            app.toggleButton.text = app.edit ? "Done Editing" : "Edit"
 
             // TODO if now edit==false, store the message templates in the url
             let serializedSettings = JSON.stringify({ messageTemplates: app.messageTemplates })

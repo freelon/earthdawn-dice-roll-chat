@@ -76,18 +76,19 @@
       <div id="app">
         <h4>Message Templates</h4>
         <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
-        <button v-if="edit" v-on:click="messageTemplates.push({})">+</button>
+        <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
         <ul>
           <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
             <div v-if="edit">
-              Title: <input v-model="template.title">
-              Message: <input v-model="template.text">
-              <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button">&#10799</button>
+              <input v-model="template.title" placeholder="Template name">
+              <br>
+              <input v-model="template.text" placeholder="Template content">
+              <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button" title="Delete template">x</button>
             </div>
             <div v-if="!edit">
               <span class="title">{{ template.title }}</span>
-              <button v-on:click="putToInputText(template)" class="symbol-button">__&#9998</button>
-              <button v-on:click="executeTemplate(template)" class="symbol-button">&#9658</button>
+              <button v-on:click="putToInputText(template)" class="symbol-button" title="Write to message text">__&#9998</button>
+              <button v-on:click="executeTemplate(template)" class="symbol-button" title="Send to chat">&#9658</button>
               <br>
               <span class="text">{{ template.text }}</span>
             </div>
