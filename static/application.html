@@ -78,10 +78,10 @@
       <div id="app">
         <div>
           <h4>Chat Room</h4>
-          <!-- <template v-if="connected"> -->
+          <template v-if="connected && room.name != null">
             <span style="font-weight: normal;">{{ room.name }}</span>:
             <span style="font-style: italic;">{{ room.members.join(', ') }}</span>
-          <!-- </template> -->
+          </template>
         </div>
 
         <div>
