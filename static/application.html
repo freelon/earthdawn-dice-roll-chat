@@ -18,6 +18,8 @@
         <h4>Howto:</h4>
         <code>/name XXX</code> -- set your name to XXX
         <br>
+        <code>/join YYY</code> -- join room YYY
+        <br>
         <code>!1d5+2</code> -- roll 1d5 and add 2
         <br>
         <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
@@ -87,7 +89,7 @@
                 <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button"
                   title="Delete template">x</button>
               </div>
-              
+
               <div v-else>
                 <span class="title">{{ template.title }}</span>
                 <button v-on:click="putToInputText(template)" class="symbol-button"
