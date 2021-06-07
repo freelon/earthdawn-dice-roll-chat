@@ -23,6 +23,10 @@ const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 /// How long before lack of client response causes a timeout
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 
+#[derive(Message)]
+#[rtype(result = "String")]
+struct GetNameMsg;
+
 /// Entry point for our websocket route
 async fn chat_route(
     req: HttpRequest,
@@ -42,7 +46,7 @@ async fn chat_route(
     )
 }
 
-struct WsChatSession {
+pub struct WsChatSession {
     /// unique session id
     id: usize,
     /// Client must send ping at least once per 10 seconds (CLIENT_TIMEOUT),
@@ -100,6 +104,14 @@ impl Handler<room::RoomMessage> for WsChatSession {
 
     fn handle(&mut self, msg: room::RoomMessage, ctx: &mut Self::Context) {
         ctx.text(msg.0.to_json());
+    }
+}
+
+impl Handler<GetNameMsg> for WsChatSession {
+    type Result = String;
+
+    fn handle(&mut self, _: GetNameMsg, _: &mut Self::Context) -> Self::Result {
+        self.name.as_ref().expect("The name must be set if the user joined a room").clone()
     }
 }
 

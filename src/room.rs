@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use crate::messages::{OutgoingMessageDTO, TextMessageDTO};
+use crate::messages::{OutgoingMessageDTO, RoomStateMessageDTO, TextMessageDTO};
+use crate::{GetNameMsg, WsChatSession};
 use actix::prelude::*;
 
 /// Send message to specific room
@@ -23,7 +24,7 @@ pub struct RoomMessage(pub OutgoingMessageDTO);
 pub struct JoinRoomMessage {
     pub id: usize,
     pub name: String,
-    pub session_addr: Recipient<RoomMessage>,
+    pub session_addr: Addr<WsChatSession>,
 }
 
 #[derive(Message)]
@@ -35,7 +36,7 @@ pub struct LeaveRoomMessage {
 
 pub struct ChatRoom {
     name: String,
-    members: HashMap<usize, Recipient<RoomMessage>>,
+    members: HashMap<usize, Addr<WsChatSession>>,
 }
 
 impl ChatRoom {
@@ -48,9 +49,19 @@ impl ChatRoom {
 
     fn send_to_all(&self, message: &TextMessageDTO) {
         self.members.values().for_each(|session| {
-            debug!("sending to session {:?}", session);
             let _ = session.do_send(RoomMessage(OutgoingMessageDTO::TextMessage(
                 message.clone(),
+            )));
+        });
+    }
+
+    fn send_room_state(&self, ctx: &mut Context<Self>) {
+        self.members.values().for_each(|session| {
+            let _ = session.do_send(RoomMessage(OutgoingMessageDTO::RoomState(
+                RoomStateMessageDTO {
+                    room_name: self.name.clone(),
+                    members: vec![],
+                },
             )));
         });
     }
@@ -74,12 +85,13 @@ impl Handler<ClientMessage> for ChatRoom {
 impl Handler<JoinRoomMessage> for ChatRoom {
     type Result = ();
 
-    fn handle(&mut self, msg: JoinRoomMessage, _: &mut Context<Self>) {
+    fn handle(&mut self, msg: JoinRoomMessage, ctx: &mut Context<Self>) {
         self.send_to_all(&TextMessageDTO::system(&format!(
             "'{}' joined the room",
             msg.name
         )));
         self.members.insert(msg.id, msg.session_addr);
+        self.send_room_state(ctx);
     }
 }
 

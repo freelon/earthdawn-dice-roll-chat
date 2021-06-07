@@ -6,6 +6,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum OutgoingMessageDTO {
     TextMessage(TextMessageDTO),
+    RoomState(RoomStateMessageDTO),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RoomStateMessageDTO {
+    pub room_name: String,
+    pub members: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
