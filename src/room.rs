@@ -36,6 +36,10 @@ pub struct LeaveRoomMessage {
     pub id: usize,
 }
 
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct NameChangedMessage;
+
 pub struct ChatRoom {
     name: String,
     members: HashMap<usize, Addr<WsChatSession>>,
@@ -120,7 +124,6 @@ impl Handler<ClientMessage> for ChatRoom {
     }
 }
 
-/// Handler for Message message.
 impl Handler<JoinRoomMessage> for ChatRoom {
     type Result = ();
 
@@ -134,7 +137,14 @@ impl Handler<JoinRoomMessage> for ChatRoom {
     }
 }
 
-/// Handler for Message message.
+impl Handler<NameChangedMessage> for ChatRoom {
+    type Result = ();
+
+    fn handle(&mut self, _: NameChangedMessage, ctx: &mut Context<Self>) {
+        self.send_room_state(ctx);
+    }
+}
+
 impl Handler<LeaveRoomMessage> for ChatRoom {
     type Result = ();
 

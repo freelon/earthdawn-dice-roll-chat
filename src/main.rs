@@ -249,7 +249,10 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                                         self.name.as_ref().unwrap()
                                     ))
                                     .to_json(),
-                                )
+                                );
+                                if let Some(room_address) = self.room_addr.as_ref() {
+                                    room_address.do_send(room::NameChangedMessage);
+                                }
                             } else {
                                 ctx.text(system_message("!!! name is required").to_json());
                             }
