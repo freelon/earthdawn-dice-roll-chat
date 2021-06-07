@@ -94,6 +94,16 @@ impl Actor for WsChatSession {
     fn stopping(&mut self, _: &mut Self::Context) -> Running {
         // notify chat server
         self.server_addr.do_send(server::Disconnect { id: self.id });
+        if let Some(room) = self.room_addr.as_ref() {
+            room.do_send(LeaveRoomMessage {
+                name: self
+                    .name
+                    .as_ref()
+                    .expect("Name must be provided here")
+                    .to_owned(),
+                id: self.id,
+            });
+        }
         Running::Stop
     }
 }
@@ -298,6 +308,17 @@ impl WsChatSession {
 
                 // notify chat server
                 act.server_addr.do_send(server::Disconnect { id: act.id });
+
+                if let Some(room) = act.room_addr.as_ref() {
+                    room.do_send(LeaveRoomMessage {
+                        name: act
+                            .name
+                            .clone()
+                            .unwrap_or_else(|| "<<unknown>>".to_string())
+                            .to_owned(),
+                        id: act.id,
+                    });
+                }
 
                 // stop actor
                 ctx.stop();
