@@ -197,7 +197,10 @@ var app = new Vue({
         toggleButton: {
             text: 'Edit'
         },
-        initiativeRolls: []
+        initiativeRolls: [],
+        initiative: {
+            show: true
+        }
     },
     methods: {
         toggleEdit: function () {
