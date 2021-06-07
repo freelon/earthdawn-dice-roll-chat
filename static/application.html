@@ -77,6 +77,14 @@
 
       <div id="app">
         <div>
+          <h4>Chat Room</h4>
+          <!-- <template v-if="connected"> -->
+            <span style="font-weight: normal;">{{ room.name }}</span>:
+            <span style="font-style: italic;">{{ room.members.join(', ') }}</span>
+          <!-- </template> -->
+        </div>
+
+        <div>
           <h4>Message Templates</h4>
           <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
           <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
