@@ -46,7 +46,8 @@
 }
 
 .systemMessage .messagePart .message {
-    font-weight: bold;
+    font-style: italic;
+    padding-left: 2em;
 }
 
 .main-view {
