@@ -19,7 +19,7 @@ const SETTINGS = "settings";
                 const main = document.getElementById("chat-view")
                 // main.innerText = ""
                 main.classList.remove("disconnected")
-
+                app.connected = true
                 this.autoJoinMessages()
             })
 
@@ -29,10 +29,14 @@ const SETTINGS = "settings";
                 const eventContent = JSON.parse(event.data)
                 if (eventContent.TextMessage)
                     this.handleTextMessage(eventContent.TextMessage)
+
+                if (eventContent.RoomState)
+                    handleRoomStateChange(eventContent.RoomState)
             })
 
             this.socket.addEventListener("close", () => {
                 document.getElementById("chat-view").classList.add("disconnected")
+                app.connected = false
                 this.setupSocket()
             })
         }
@@ -188,6 +192,12 @@ function updateInitiatives(eventContent) {
     }
 }
 
+function handleRoomStateChange(eventContent) {
+    app.room.name = eventContent.room_name
+    eventContent.members.sort()
+    app.room.members = eventContent.members
+}
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -200,6 +210,11 @@ var app = new Vue({
         initiativeRolls: [],
         initiative: {
             show: true
+        },
+        connected: false,
+        room: {
+            name: null,
+            members: []
         }
     },
     methods: {
