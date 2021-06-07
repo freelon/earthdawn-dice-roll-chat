@@ -66,17 +66,18 @@ impl ChatRoom {
             member
                 .send(GetNameMsg)
                 .into_actor(self)
-                .then(move |res, act, ctx| {
-                    match res {
-                        Ok(name) => ChatRoom::maybe_send_member_list(
-                            act,
-                            needed_answers_local,
-                            answers_local,
-                            name,
-                        ),
-                        // something is wrong with chat server
-                        _ => ctx.stop(),
-                    }
+                .then(move |res, act, _| {
+                    let name = match res {
+                        Ok(name) => name,
+                        // something went wrong, likely the
+                        _ => "".to_string(),
+                    };
+                    ChatRoom::maybe_send_member_list(
+                        act,
+                        needed_answers_local,
+                        answers_local,
+                        name,
+                    );
                     fut::ready(())
                 })
                 .wait(ctx)
