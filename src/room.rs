@@ -1,4 +1,6 @@
 use std::collections::HashMap;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use crate::messages::{OutgoingMessageDTO, RoomStateMessageDTO, TextMessageDTO};
 use crate::{GetNameMsg, WsChatSession};
@@ -56,14 +58,50 @@ impl ChatRoom {
     }
 
     fn send_room_state(&self, ctx: &mut Context<Self>) {
-        self.members.values().for_each(|session| {
-            let _ = session.do_send(RoomMessage(OutgoingMessageDTO::RoomState(
-                RoomStateMessageDTO {
-                    room_name: self.name.clone(),
-                    members: vec![],
-                },
-            )));
+        let needed_answers = self.members.values().len();
+        let answers = Arc::new(Mutex::new(vec![]));
+        self.members.values().for_each(|member| {
+            let answers_local = answers.clone();
+            let needed_answers_local = needed_answers;
+            member
+                .send(GetNameMsg)
+                .into_actor(self)
+                .then(move |res, act, ctx| {
+                    match res {
+                        Ok(name) => ChatRoom::maybe_send_member_list(
+                            act,
+                            needed_answers_local,
+                            answers_local,
+                            name,
+                        ),
+                        // something is wrong with chat server
+                        _ => ctx.stop(),
+                    }
+                    fut::ready(())
+                })
+                .wait(ctx)
         });
+    }
+
+    fn maybe_send_member_list(
+        actor: &mut ChatRoom,
+        needed_answers: usize,
+        answers: Arc<Mutex<Vec<String>>>,
+        added_name: String,
+    ) {
+        let mut list = answers.lock().unwrap();
+        list.push(added_name);
+
+        if list.len() == needed_answers {
+            actor.members.values().for_each(|session| {
+                let _ = session.do_send(RoomMessage(OutgoingMessageDTO::RoomState(
+                    RoomStateMessageDTO {
+                        room_name: actor.name.clone(),
+                        members: list.clone(),
+                    },
+                )));
+            });
+        }
     }
 }
 
@@ -99,11 +137,12 @@ impl Handler<JoinRoomMessage> for ChatRoom {
 impl Handler<LeaveRoomMessage> for ChatRoom {
     type Result = ();
 
-    fn handle(&mut self, msg: LeaveRoomMessage, _: &mut Context<Self>) {
+    fn handle(&mut self, msg: LeaveRoomMessage, ctx: &mut Context<Self>) {
         self.members.remove(&msg.id);
         self.send_to_all(&TextMessageDTO::system(&format!(
             "'{}' left the room",
             msg.name
         )));
+        self.send_room_state(ctx);
     }
 }
