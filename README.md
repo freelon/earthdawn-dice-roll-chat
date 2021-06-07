@@ -6,6 +6,10 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.5
+
+* Send the current room state to users (room name and all member names)
+
 ### 0.4
 
 * Added initiative management
