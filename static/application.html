@@ -36,46 +36,8 @@
     </div>
 
     <div class="earthdawn">
-      <div class="dice">
-        <h4>Step/Action Dice</h4>
-        <button onclick="document.getElementById('message').value ='!!1d4+-2'">1</button>
-        <button onclick="document.getElementById('message').value ='!!1d4+-1'">2</button>
-        <button onclick="document.getElementById('message').value ='!!1d4'">3</button>
-        <button onclick="document.getElementById('message').value ='!!1d6'">4</button>
-        <button onclick="document.getElementById('message').value ='!!1d8'">5</button>
-        <br>
-        <button onclick="document.getElementById('message').value ='!!1d10'">6</button>
-        <button onclick="document.getElementById('message').value ='!!1d12'">7</button>
-        <button onclick="document.getElementById('message').value ='!!2d6'">8</button>
-        <button onclick="document.getElementById('message').value ='!!1d8+1d6'">9</button>
-        <button onclick="document.getElementById('message').value ='!!1d10+1d6'">10</button>
-        <br>
-        <button onclick="document.getElementById('message').value ='!!1d10+1d8'">11</button>
-        <button onclick="document.getElementById('message').value ='!!2d10'">12</button>
-        <button onclick="document.getElementById('message').value ='!!1d12+1d10'">13</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d4'">14</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d6'">15</button>
-        <br>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d8'">16</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10'">17</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d12'">18</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+2d6'">19</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d8+1d6'">20</button>
-        <br>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d6'">21</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d8'">22</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+2d10'">23</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d12+1d10'">24</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d8+1d4'">25</button>
-        <br>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d8+1d6'">26</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+2d8'">27</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+2d10+1d8'">28</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d12+1d10+1d8'">29</button>
-        <button onclick="document.getElementById('message').value ='!!1d20+1d10+1d8+2d6'">30</button>
-      </div>
-
       <div id="app">
+
         <div>
           <h4>Chat Room</h4>
           <template v-if="connected && room.name != null">
@@ -100,10 +62,9 @@
 
               <div v-else>
                 <span class="title">{{ template.title }}</span>
-                <button v-on:click="putToInputText(template)" class="symbol-button"
+                <button v-on:click="putToInputText(template.text)" class="symbol-button"
                   title="Write to message text">__&#9998</button>
-                <button v-on:click="executeTemplate(template)" class="symbol-button"
-                  title="Send to chat">&#9658</button>
+                <button v-on:click="sendText(template.text)" class="symbol-button" title="Send to chat">&#9658</button>
                 <br>
                 <span class="text">{{ template.text }}</span>
               </div>
@@ -129,6 +90,14 @@
             </ul>
             <span v-if="initiativeRolls.length == 0">No initiatives rolled</span>
           </div>
+        </div>
+
+        <div class="dice">
+          <h4>Step/Action Dice</h4>
+          <template v-for="(dice, step) in games.earthdawn.stepActionDice">
+            <button v-on:click="putToInputText(dice)">{{ step }}</button>
+            <template v-if="step % 5 == 0"><br></template>
+          </template>
         </div>
       </div>
 
