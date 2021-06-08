@@ -2,36 +2,36 @@ const ROOM = "room";
 const NAME = "name";
 const SETTINGS = "settings";
 const earthdawnStepActionDice = {
-    1: '!!1d4+-2',
-    2: '!!1d4+-1',
-    3: '!!1d4',
-    4: '!!1d6',
-    5: '!!1d8',
-    6: '!!1d10',
-    7: '!!1d12',
-    8: '!!2d6',
-    9: '!!1d8+1d6',
-    10: '!!1d10+1d6',
-    11: '!!1d10+1d8',
-    12: '!!2d10',
-    13: '!!1d12+1d10',
-    14: '!!1d20+1d4',
-    15: '!!1d20+1d6',
-    16: '!!1d20+1d8',
-    17: '!!1d20+1d10',
-    18: '!!1d20+1d12',
-    19: '!!1d20+2d6',
-    20: '!!1d20+1d8+1d6',
-    21: '!!1d20+1d10+1d6',
-    22: '!!1d20+1d10+1d8',
-    23: '!!1d20+2d10',
-    24: '!!1d20+1d12+1d10',
-    25: '!!1d20+1d10+1d8+1d4',
-    26: '!!1d20+1d10+1d8+1d6',
-    27: '!!1d20+1d10+2d8',
-    28: '!!1d20+2d10+1d8',
-    29: '!!1d20+1d12+1d10+1d8',
-    30: '!!1d20+1d10+1d8+2d6'
+    1: '1d4+-2',
+    2: '1d4+-1',
+    3: '1d4',
+    4: '1d6',
+    5: '1d8',
+    6: '1d10',
+    7: '1d12',
+    8: '2d6',
+    9: '1d8+1d6',
+    10: '1d10+1d6',
+    11: '1d10+1d8',
+    12: '2d10',
+    13: '1d12+1d10',
+    14: '1d20+1d4',
+    15: '1d20+1d6',
+    16: '1d20+1d8',
+    17: '1d20+1d10',
+    18: '1d20+1d12',
+    19: '1d20+2d6',
+    20: '1d20+1d8+1d6',
+    21: '1d20+1d10+1d6',
+    22: '1d20+1d10+1d8',
+    23: '1d20+2d10',
+    24: '1d20+1d12+1d10',
+    25: '1d20+1d10+1d8+1d4',
+    26: '1d20+1d10+1d8+1d6',
+    27: '1d20+1d10+2d8',
+    28: '1d20+2d10+1d8',
+    29: '1d20+1d12+1d10+1d8',
+    30: '1d20+1d10+1d8+2d6'
 };
 
 (() => {
@@ -122,6 +122,7 @@ const earthdawnStepActionDice = {
                 const input = document.getElementById("message")
                 message = input.value
                 input.value = ""
+                message = expandStepLevel(message)
             } else {
                 message = msg
             }
@@ -221,6 +222,18 @@ function updateInitiatives(eventContent) {
         })
         rolls.sort((a, b) => b.result - a.result)
         app.initiativeRolls = rolls
+    }
+}
+
+const diceLevelRegex = /!{1,2}\[(.*)\].*/
+function expandStepLevel(message) {
+    let matches = message.match(diceLevelRegex)
+    if (matches != null) {
+        let diceLevel = matches[1]
+        let expanded = earthdawnStepActionDice[eval(diceLevel)]
+        return message.replace("[" +diceLevel + "]", expanded)
+    } else {
+        return message
     }
 }
 
