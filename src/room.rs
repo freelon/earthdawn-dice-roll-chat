@@ -73,8 +73,8 @@ impl ChatRoom {
                 .then(move |res, act, _| {
                     let name = match res {
                         Ok(name) => name,
-                        // something went wrong, likely the
-                        _ => "".to_string(),
+                        // something went wrong, likely a deadlock between the actors
+                        _ => "<<unknown name>>".to_string(),
                     };
                     ChatRoom::maybe_send_member_list(
                         act,
