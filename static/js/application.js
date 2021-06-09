@@ -171,16 +171,15 @@ function updateURLSearchParameter(key, value) {
     history.replaceState({}, null, url)
 }
 
-function loadTemplates() {
+function loadSettings() {
     const urlParams = new URLSearchParams(window.location.search)
 
     if (urlParams.has(SETTINGS)) {
         let base64Settings = urlParams.get(SETTINGS)
         let serializedSettings = atob(base64Settings)
         let settings = JSON.parse(serializedSettings)
-        return settings.messageTemplates
-    } else {
-        return []
+        app.messageTemplates = settings.messageTemplates
+        app.games.earthdawn.myKarma = settings.myKarma
     }
 }
 
@@ -215,6 +214,12 @@ function expandStepLevel(message) {
     }
 }
 
+function addKarma(message, karma) {
+    let parts = message.split(' ')
+    parts[0] = parts[0] + "+" + karma
+    return parts.join(' ')
+}
+
 function handleRoomStateChange(eventContent) {
     app.room.name = eventContent.room_name
     eventContent.members.sort()
@@ -225,7 +230,8 @@ var app = new Vue({
     el: '#app',
     data: {
         currentText: '',
-        messageTemplates: loadTemplates(),
+        useKarma: false,
+        messageTemplates: [],
         edit: false,
         toggleButton: {
             text: 'Edit'
@@ -241,7 +247,8 @@ var app = new Vue({
         },
         games: {
             earthdawn: {
-                stepActionDice: earthdawnStepActionDice
+                stepActionDice: earthdawnStepActionDice,
+                myKarma: 'd4'
             }
         }
     },
@@ -250,8 +257,11 @@ var app = new Vue({
             this.edit = !this.edit
             this.toggleButton.text = this.edit ? "Done Editing" : "Edit"
 
-            // TODO if now edit==false, store the message templates in the url
-            let serializedSettings = JSON.stringify({ messageTemplates: this.messageTemplates })
+            if (!this.edit)
+                this.storeSettings()
+        },
+        storeSettings: function () {
+            let serializedSettings = JSON.stringify({ messageTemplates: this.messageTemplates, myKarma: this.games.earthdawn.myKarma })
             let base64Settings = btoa(serializedSettings)
             updateURLSearchParameter("settings", base64Settings)
         },
@@ -270,10 +280,15 @@ var app = new Vue({
                 message = this.currentText
                 this.currentText = ""
                 message = expandStepLevel(message)
+
+                if (this.useKarma) {
+                    message = addKarma(message, this.games.earthdawn.myKarma)
+                    this.useKarma = false
+                }
             } else {
                 message = text
             }
-    
+
             websocketClass.submit(message)
         }
     }
@@ -281,3 +296,5 @@ var app = new Vue({
 
 websocketClass = new myWebsocketHandler()
 websocketClass.setupSocket()
+
+loadSettings()

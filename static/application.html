@@ -28,6 +28,8 @@
       <div id="chat-form">
         <input id="message" type="text" v-model="currentText">
         <input type="submit" value="Go" v-on:click="submit()">
+        <input id="useKarmaCheckbox" type="checkbox" v-model="useKarma">
+        <label for="useKarmaCheckbox">Use Karma</label>
       </div>
       <span
         id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
@@ -93,6 +95,8 @@
 
       <div class="dice">
         <h4>Step/Action Dice</h4>
+        My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
+        <p>
         <template v-for="(dice, step) in games.earthdawn.stepActionDice">
           <button v-on:click="putToInputText('!![' + step + ']')">{{ step }}</button>
           <template v-if="step % 5 == 0"><br></template>
