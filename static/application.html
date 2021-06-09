@@ -25,12 +25,12 @@
         <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
       </div>
       <hr>
-      <div id="chat-form">
+      <form id="chat-form">
         <input id="message" type="text" v-model="currentText">
-        <input type="submit" value="Go" v-on:click="submit()">
+        <input type="submit" value="Go" v-on:click.prevent="submit()">
         <input id="useKarmaCheckbox" type="checkbox" v-model="useKarma">
         <label for="useKarmaCheckbox">Use Karma</label>
-      </div>
+      </form>
       <span
         id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
       <br>
