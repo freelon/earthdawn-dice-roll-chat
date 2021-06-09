@@ -248,7 +248,7 @@ var app = new Vue({
         games: {
             earthdawn: {
                 stepActionDice: earthdawnStepActionDice,
-                myKarma: 'd4'
+                myKarma: ''
             }
         }
     },
