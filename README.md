@@ -6,6 +6,11 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.6
+
+* Added karma setting and a checkbox to add karma to the current roll
+* Added quick step input in roll (i.e. write '!![3]' for a step of 3 instead of typing '!!1d4' manually)
+
 ### 0.5
 
 * Send the current room state to users (room name and all member names)
