@@ -6,6 +6,11 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.7
+
+* Configurable port
+* Welcome message including program version and build version (i.e. git commit the build is based on)
+
 ### 0.6
 
 * Added karma setting and a checkbox to add karma to the current roll
