@@ -3,6 +3,7 @@ extern crate log;
 
 use crate::dice::get_results;
 use crate::messages::TextMessageDTO;
+use std::env;
 use std::time::{Duration, Instant};
 
 use actix::*;
@@ -347,6 +348,9 @@ fn system_message(test: &str) -> OutgoingMessageDTO {
 async fn main() -> std::io::Result<()> {
     env_logger::init();
 
+    let port = env::args().skip(1).next().unwrap_or_else(|| "8080".into());
+    info!("Starting on port {}", port);
+
     // Start chat server actor
     let server = server::ChatServer::new().start();
 
@@ -365,7 +369,7 @@ async fn main() -> std::io::Result<()> {
             // static resources
             .service(fs::Files::new("/static/", "static/"))
     })
-    .bind("127.0.0.1:8080")?
+    .bind(format!("127.0.0.1:{}", port))?
     .run()
     .await
 }
