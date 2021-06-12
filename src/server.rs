@@ -2,7 +2,11 @@
 //! And manages available rooms. Peers send messages to other peers in same
 //! room through `ChatServer`.
 
-use crate::room::{ChatRoom, RoomMessage};
+use crate::{
+    greet::welcome_message,
+    messages::{OutgoingMessageDTO, TextMessageDTO},
+    room::{ChatRoom, RoomMessage},
+};
 
 use actix::prelude::*;
 use rand::{self, rngs::ThreadRng, Rng};
@@ -77,6 +81,12 @@ impl Handler<Connect> for ChatServer {
 
     fn handle(&mut self, msg: Connect, _: &mut Context<Self>) -> Self::Result {
         debug!("Someone joined");
+
+        let _ = msg
+            .addr
+            .do_send(RoomMessage(OutgoingMessageDTO::TextMessage(
+                TextMessageDTO::system(&welcome_message()),
+            )));
 
         // register session with random id
         let id = self.rng.gen::<usize>();

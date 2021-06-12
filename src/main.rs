@@ -14,6 +14,7 @@ use messages::OutgoingMessageDTO;
 use room::LeaveRoomMessage;
 
 mod dice;
+mod greet;
 mod messages;
 mod room;
 mod server;
@@ -121,7 +122,10 @@ impl Handler<GetNameMsg> for WsChatSession {
     type Result = String;
 
     fn handle(&mut self, _: GetNameMsg, _: &mut Self::Context) -> Self::Result {
-        self.name.as_ref().expect("The name must be set if the user joined a room").clone()
+        self.name
+            .as_ref()
+            .expect("The name must be set if the user joined a room")
+            .clone()
     }
 }
 
