@@ -25,7 +25,7 @@
         <code>!!1d5+2</code> -- roll 1d5 exploding dice and add 2
       </div>
       <hr>
-      <form id="chat-form">
+      <form id="chat-form" autocomplete="off">
         <input id="message" type="text" v-model="currentText">
         <input type="submit" value="Go" v-on:click.prevent="submit()">
         <input id="useKarmaCheckbox" type="checkbox" v-model="useKarma">
