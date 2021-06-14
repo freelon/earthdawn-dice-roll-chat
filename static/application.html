@@ -31,7 +31,8 @@
         <input id="useKarmaCheckbox" type="checkbox" v-model="useKarma">
         <label for="useKarmaCheckbox">Use Karma</label>
         <input id="hideRollCheckbox" type="checkbox" v-model="hideRoll">
-        <label for="hideRollCheckbox">Hide roll</label>
+        <label for="hideRollCheckbox" title="Appends '*' to your roll, e.g. '!!1d4+3* some more text'">Hide
+          roll</label>
       </form>
       <span
         id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>
@@ -98,7 +99,8 @@
         My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
         <p>
           <template v-for="(dice, step) in games.earthdawn.stepActionDice">
-            <button v-on:click="putToInputText('!![' + step + ']')" v-bind:title="games.earthdawn.stepActionDice[step]">{{ step }}</button>
+            <button v-on:click="putToInputText('!![' + step + ']')"
+              v-bind:title="games.earthdawn.stepActionDice[step]">{{ step }}</button>
             <template v-if="step % 5 == 0"><br></template>
           </template>
       </div>
