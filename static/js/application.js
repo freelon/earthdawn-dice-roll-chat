@@ -183,7 +183,7 @@ function loadSettings() {
     }
 }
 
-const iniRegex = /!.*\(ini\)(.*)/
+const iniRegex = /!.*\(ini(:.*)?\)(.*)/
 function updateInitiatives(eventContent) {
     if (eventContent.message == "(clear initiative)")
         app.initiativeRolls = []
@@ -191,11 +191,17 @@ function updateInitiatives(eventContent) {
     let matches = eventContent.message.match(iniRegex)
     if (matches != null) {
         let description = matches.pop().trim()
-        let rolls = app.initiativeRolls.filter(i => i.name != eventContent.name)
+        let mainName = eventContent.name
+        let subName = matches.pop()
+        if (subName)
+            subName = subName.substr(1)
+            
+        let rolls = app.initiativeRolls.filter(i => !(i.mainName == mainName && i.subName == subName))
         rolls.push({
             result: eventContent.dice_results.reduce((a, b) => a + b, 0),
             description: description,
-            name: eventContent.name
+            mainName: mainName,
+            subName: subName
         })
         rolls.sort((a, b) => b.result - a.result)
         app.initiativeRolls = rolls

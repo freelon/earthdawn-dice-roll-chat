@@ -76,7 +76,7 @@
 
       <div id="iniDiv">
         <h4
-          title="Send i.e. '!!1d6 (ini) <description>' to roll your initiative. GM sends '(clear initiative)'' to begin a new round.">
+          title="Send i.e. '!!1d6 (ini) <description>' to roll your initiative. GM sends '(clear initiative)'' to begin a new round. To create multiple named initiatives use '!!1d6 (ini:<some name>) <description>'.">
           Initiative<sup>i</sup>
 
           <button v-on:click="initiative.show=!initiative.show" style="margin-left: 1em;">
@@ -87,7 +87,7 @@
         <div v-if="initiative.show">
           <ul>
             <li v-for="iniRoll in initiativeRolls">
-              <span>({{ iniRoll.result }}) {{ iniRoll.name }}: {{ iniRoll.description }}</span>
+              <span>({{ iniRoll.result }}) {{ iniRoll.mainName }}<span v-if="iniRoll.subName" style="font-style: italic;"> {{ iniRoll.subName}}</span>: {{ iniRoll.description }}</span>
             </li>
           </ul>
           <span v-if="initiativeRolls.length == 0">No initiatives rolled</span>
