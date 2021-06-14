@@ -1,6 +1,10 @@
+use std::collections::VecDeque;
+
 use rand::prelude::*;
 
 pub fn get_results(request: &str) -> Vec<i32> {
+    let plus_minus: &[char] = &['+', '-'][..];
+
     let request = strip_text(request);
     let should_explode = request.starts_with("!");
 
@@ -10,9 +14,15 @@ pub fn get_results(request: &str) -> Vec<i32> {
         request
     };
 
+    let mut separators: VecDeque<&str> = s.matches(plus_minus).collect();
+    if !s.starts_with(plus_minus) {
+        separators.push_front("+");
+    }
+
     let dice_result: Vec<i32> = s
-        .split('+')
-        .map(|part| run(part, should_explode))
+        .split(plus_minus)
+        .zip(separators)
+        .map(|(part, sign)| run(&format!("{}{}", sign, part), should_explode))
         .filter_map(|x| x)
         .collect();
 
@@ -25,6 +35,10 @@ pub fn get_results(request: &str) -> Vec<i32> {
 
 fn run(input: &str, should_explode: bool) -> Option<i32> {
     if input.contains('d') {
+        let negative = input.starts_with('-');
+
+        let input = if negative { &input[1..] } else { &input[..] };
+
         let parts: Vec<&str> = input.split('d').collect();
         let a = if parts[0].is_empty() {
             1
@@ -41,7 +55,12 @@ fn run(input: &str, should_explode: bool) -> Option<i32> {
             return None;
         };
 
-        return Some(roll(a, b, should_explode));
+        let mut result = roll(a, b, should_explode);
+        if negative {
+            result = -result;
+        }
+
+        return Some(result);
     }
 
     if let Ok(i) = input.parse::<i32>() {
@@ -77,5 +96,30 @@ fn strip_text(input: &str) -> &str {
         input.split(" ").next().unwrap()
     } else {
         input
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::get_results;
+
+    #[test]
+    fn test_number() {
+        assert_eq!(vec![1, 2, 3], get_results(&"1+2+3"));
+    }
+
+    #[test]
+    fn test_negative_with_number() {
+        assert_eq!(vec![1, 2, -3], get_results(&"1+2+-3"));
+    }
+
+    #[test]
+    fn test_negative_with_dice() {
+        assert_eq!(vec![1, 2, -3], get_results(&"1d1+2d1-3d1"));
+    }
+
+    #[test]
+    fn test_dice() {
+        assert_eq!(vec![1, 2, 3], get_results(&"1d1+2d1+3d1"));
     }
 }

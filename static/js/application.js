@@ -2,8 +2,8 @@ const ROOM = "room";
 const NAME = "name";
 const SETTINGS = "settings";
 const earthdawnStepActionDice = {
-    1: '1d4+-2',
-    2: '1d4+-1',
+    1: '1d4-2',
+    2: '1d4-1',
     3: '1d4',
     4: '1d6',
     5: '1d8',
