@@ -57,15 +57,13 @@
               <input v-model="template.title" placeholder="Template name">
               <br>
               <input v-model="template.text" placeholder="Template content">
-              <button v-on:click="messageTemplates.splice(templateIndex, 1)" class="symbol-button"
-                title="Delete template">x</button>
+              <button v-on:click="messageTemplates.splice(templateIndex, 1)" title="Delete template">x</button>
             </div>
 
             <div v-else>
               <span class="title">{{ template.title }}</span>
-              <button v-on:click="putToInputText(template.text)" class="symbol-button"
-                title="Write to message text">__&#9998</button>
-              <button v-on:click="sendText(template.text)" class="symbol-button" title="Send to chat">&#9658</button>
+              <button v-on:click="putToInputText(template.text)" title="Write to message text">__&#9998</button>
+              <button v-on:click="sendText(template.text)" title="Send to chat">Go</button>
               <br>
               <span class="text">{{ template.text }}</span>
             </div>
@@ -97,10 +95,10 @@
         <h4>Step/Action Dice</h4>
         My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
         <p>
-        <template v-for="(dice, step) in games.earthdawn.stepActionDice">
-          <button v-on:click="putToInputText('!![' + step + ']')">{{ step }}</button>
-          <template v-if="step % 5 == 0"><br></template>
-        </template>
+          <template v-for="(dice, step) in games.earthdawn.stepActionDice">
+            <button v-on:click="putToInputText('!![' + step + ']')">{{ step }}</button>
+            <template v-if="step % 5 == 0"><br></template>
+          </template>
       </div>
 
       <div class="target_numbers">
