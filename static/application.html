@@ -55,12 +55,12 @@
           title="Send i.e. '!!1d6 (ini) <description>' to roll your initiative. GM sends '(clear initiative)'' to begin a new round. To create multiple named initiatives use '!!1d6 (ini:<some name>) <description>'.">
           Initiative<sup>i</sup>
 
-          <button v-on:click="initiative.show=!initiative.show" style="margin-left: 1em;">
-            <span v-if="initiative.show">&#9650;</span>
+          <button v-on:click="visibilityToggles.initiative=!visibilityToggles.initiative" style="margin-left: 1em;">
+            <span v-if="visibilityToggles.initiative">&#9650;</span>
             <span v-else>&#9660;</span>
           </button>
         </h4>
-        <div v-if="initiative.show">
+        <template v-if="visibilityToggles.initiative">
           <ul>
             <li v-for="iniRoll in initiativeRolls">
               <span>({{ iniRoll.result }}) {{ iniRoll.mainName }}<span v-if="iniRoll.subName"
@@ -68,42 +68,62 @@
             </li>
           </ul>
           <span v-if="initiativeRolls.length == 0">No initiatives rolled</span>
-        </div>
+        </template>
       </div>
 
       <div class="dice">
-        <h4>Step/Action Dice</h4>
-        My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
-        <p>
-          <template v-for="(dice, step) in games.earthdawn.stepActionDice">
-            <button v-on:click="putToInputText('!![' + step + ']')"
-              v-bind:title="games.earthdawn.stepActionDice[step]">{{ step }}</button>
-            <template v-if="step % 5 == 0"><br></template>
-          </template>
+        <h4>
+          Step/Action Dice
+
+          <button v-on:click="visibilityToggles.dice=!visibilityToggles.dice" style="margin-left: 1em;">
+            <span v-if="visibilityToggles.dice">&#9650;</span>
+            <span v-else>&#9660;</span>
+          </button>
+        </h4>
+        <template v-if="visibilityToggles.dice">
+          My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
+          <p>
+            <template v-for="(dice, step) in games.earthdawn.stepActionDice">
+              <button v-on:click="putToInputText('!![' + step + ']')"
+                v-bind:title="games.earthdawn.stepActionDice[step]" class="dice-step-button">
+                {{ step }}
+              </button>
+              <template v-if="step % 5 == 0"><br></template>
+            </template>
+        </template>
       </div>
 
       <div>
-        <h4>Message Templates</h4>
-        <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
-        <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
-        <ul>
-          <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
-            <div v-if="edit">
-              <input v-model="template.title" placeholder="Template name">
-              <br>
-              <input v-model="template.text" placeholder="Template content">
-              <button v-on:click="messageTemplates.splice(templateIndex, 1)" title="Delete template">x</button>
-            </div>
+        <h4>
+          Message Templates
 
-            <div v-else>
-              <span class="title">{{ template.title }}</span>
-              <button v-on:click="putToInputText(template.text)" title="Write to message text">__&#9998</button>
-              <button v-on:click="sendText(template.text)" title="Send to chat">Go</button>
-              <br>
-              <span class="text">{{ template.text }}</span>
-            </div>
-          </li>
-        </ul>
+          <button v-on:click="visibilityToggles.templates=!visibilityToggles.templates" style="margin-left: 1em;">
+            <span v-if="visibilityToggles.templates">&#9650;</span>
+            <span v-else>&#9660;</span>
+          </button>
+        </h4>
+        <template v-if="visibilityToggles.templates">
+          <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
+          <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
+          <ul>
+            <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
+              <div v-if="edit">
+                <input v-model="template.title" placeholder="Template name">
+                <br>
+                <input v-model="template.text" placeholder="Template content">
+                <button v-on:click="messageTemplates.splice(templateIndex, 1)" title="Delete template">x</button>
+              </div>
+
+              <div v-else>
+                <span class="title">{{ template.title }}</span>
+                <button v-on:click="putToInputText(template.text)" title="Write to message text">__&#9998</button>
+                <button v-on:click="sendText(template.text)" title="Send to chat">Go</button>
+                <br>
+                <span class="text">{{ template.text }}</span>
+              </div>
+            </li>
+          </ul>
+        </template>
       </div>
 
       <div class="target_numbers">

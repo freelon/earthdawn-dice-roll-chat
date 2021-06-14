@@ -84,7 +84,7 @@
     margin-bottom: 2em;
 }
 
-.dice button {
+.dice-step-button {
     width: 6ch;
 }
 
@@ -100,8 +100,4 @@
 
 #app .template-entry .title {
     margin: 0px;
-}
-
-#iniDiv {
-    padding-bottom: 1em;
 }

@@ -195,7 +195,7 @@ function updateInitiatives(eventContent) {
         let subName = matches.pop()
         if (subName)
             subName = subName.substr(1)
-            
+
         let rolls = app.initiativeRolls.filter(i => !(i.mainName == mainName && i.subName == subName))
         rolls.push({
             result: eventContent.dice_results.reduce((a, b) => a + b, 0),
@@ -249,10 +249,12 @@ var app = new Vue({
         toggleButton: {
             text: 'Edit'
         },
-        initiativeRolls: [],
-        initiative: {
-            show: true
+        visibilityToggles: {
+            dice: true,
+            initiative: true,
+            templates: true
         },
+        initiativeRolls: [],
         connected: false,
         room: {
             name: null,
