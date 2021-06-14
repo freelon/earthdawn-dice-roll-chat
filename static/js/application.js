@@ -214,6 +214,12 @@ function expandStepLevel(message) {
     }
 }
 
+function expandHideRoll(message) {
+    let parts = message.split(' ')
+    parts[0] = parts[0] + "*"
+    return parts.join(' ')
+}
+
 function addKarma(message, karma) {
     let parts = message.split(' ')
     parts[0] = parts[0] + "+" + karma
@@ -231,6 +237,7 @@ var app = new Vue({
     data: {
         currentText: '',
         useKarma: false,
+        hideRoll: false,
         messageTemplates: [],
         edit: false,
         toggleButton: {
@@ -284,6 +291,11 @@ var app = new Vue({
                 if (this.useKarma) {
                     message = addKarma(message, this.games.earthdawn.myKarma)
                     this.useKarma = false
+                }
+
+                if (this.hideRoll) {
+                    message = expandHideRoll(message)
+                    this.hideRoll = false
                 }
             } else {
                 message = text

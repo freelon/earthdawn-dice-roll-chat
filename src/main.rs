@@ -1,9 +1,10 @@
 #[macro_use]
 extern crate log;
 
-use crate::dice::get_results;
+use crate::dice::{get_results, hide_roll_part, is_hidden_roll};
 use crate::messages::TextMessageDTO;
 use std::env;
+
 use std::time::{Duration, Instant};
 
 use actix::*;
@@ -271,7 +272,17 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsChatSession {
                         let sender = self.name.as_ref().unwrap();
 
                         let msg = if m.starts_with('!') {
-                            TextMessageDTO::dice_result(m, &get_results(&m[1..]), &sender)
+                            let roll_result = get_results(&m[1..]);
+                            let sent_result;
+                            let sent_message;
+                            if is_hidden_roll(m) {
+                                sent_result = vec![roll_result.iter().sum()];
+                                sent_message = hide_roll_part(m);
+                            } else {
+                                sent_result = roll_result;
+                                sent_message = m.to_string();
+                            };
+                            TextMessageDTO::dice_result(&sent_message, &sent_result, &sender)
                         } else {
                             TextMessageDTO::chat(m, &sender)
                         };

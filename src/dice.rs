@@ -92,11 +92,37 @@ fn roll_single(x: u32, should_explode: bool) -> i32 {
 }
 
 fn strip_text(input: &str) -> &str {
-    if input.contains(" ") {
+    let roll_part = if input.contains(" ") {
         input.split(" ").next().unwrap()
     } else {
         input
+    };
+
+    if roll_part.ends_with('*') {
+        &roll_part[..roll_part.len() - 1]
+    } else {
+        roll_part
     }
+}
+
+pub fn is_hidden_roll(input: &str) -> bool {
+    let roll_part = if input.contains(" ") {
+        input.split_once(" ").unwrap().0
+    } else {
+        input
+    };
+
+    roll_part.ends_with('*')
+}
+
+pub fn hide_roll_part(input: &str) -> String {
+    let text_part = if input.contains(" ") {
+        input.split_once(" ").unwrap().1
+    } else {
+        ""
+    };
+
+    format!("!*hidden* {}", text_part)
 }
 
 #[cfg(test)]
