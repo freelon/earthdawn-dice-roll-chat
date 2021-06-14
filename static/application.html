@@ -96,7 +96,7 @@
         My karma: <input type="text" v-model="games.earthdawn.myKarma" size="10em" v-on:input="storeSettings">
         <p>
           <template v-for="(dice, step) in games.earthdawn.stepActionDice">
-            <button v-on:click="putToInputText('!![' + step + ']')">{{ step }}</button>
+            <button v-on:click="putToInputText('!![' + step + ']')" v-bind:title="games.earthdawn.stepActionDice[step]">{{ step }}</button>
             <template v-if="step % 5 == 0"><br></template>
           </template>
       </div>
