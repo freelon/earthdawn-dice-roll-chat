@@ -92,6 +92,10 @@
     padding-bottom: 10px;
 }
 
+#app .template-entry .edit {
+    cursor: grab;
+}
+
 #app .template-entry .text {
     color: gray;
     font-size: small;
@@ -100,4 +104,16 @@
 
 #app .template-entry .title {
     margin: 0px;
+}
+
+#app .template-drop-zone {
+    background-color: lightblue;
+    padding: 10px;
+    margin-top: 10px;
+    border-style: dashed;
+    border-color: blue;
+}
+
+#app .template-drop-zone-active {
+    background-color: green;
 }

@@ -310,6 +310,22 @@ var app = new Vue({
             }
 
             websocketClass.submit(message)
+        },
+        startDrag: function (evt, index) {
+            evt.dataTransfer.dropEffect = 'move'
+            evt.dataTransfer.effectAllowed = 'move'
+            evt.dataTransfer.setData('itemIndex', index)
+        },
+        onDrop: function (evt, newIndex) {
+            const oldIndex = evt.dataTransfer.getData('itemIndex')
+            if (oldIndex == newIndex)
+                return
+
+            const item = this.messageTemplates[oldIndex]
+            this.messageTemplates.splice(oldIndex, 1)
+            if (newIndex > oldIndex)
+                newIndex -= 1
+            this.messageTemplates.splice(newIndex, 0, item)
         }
     }
 })
