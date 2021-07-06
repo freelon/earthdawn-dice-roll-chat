@@ -30,9 +30,9 @@
         <input type="submit" value="Go" v-on:click.prevent="submit()">
         <input id="useKarmaCheckbox" type="checkbox" v-model="useKarma">
         <label for="useKarmaCheckbox">Use Karma</label>
-        <input id="hideRollCheckbox" type="checkbox" v-model="hideRoll">
-        <label for="hideRollCheckbox" title="Appends '*' to your roll, e.g. '!!1d4+3* some more text'">Hide
-          roll</label>
+        <input id="hideDiceCheckbox" type="checkbox" v-model="hideDice">
+        <label for="hideDiceCheckbox" title="Appends '*' to your roll, e.g. '!!1d4+3* some more text'">Hide
+          dice</label>
       </form>
       <span
         id="disconnected-message"><code>You are not connected to the server. Trying to connect automatically ...</code></span>

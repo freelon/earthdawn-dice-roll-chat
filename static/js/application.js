@@ -220,7 +220,7 @@ function expandStepLevel(message) {
     }
 }
 
-function expandHideRoll(message) {
+function expandHideDice(message) {
     let parts = message.split(' ')
     parts[0] = parts[0] + "*"
     return parts.join(' ')
@@ -243,7 +243,7 @@ var app = new Vue({
     data: {
         currentText: '',
         useKarma: false,
-        hideRoll: false,
+        hideDice: false,
         messageTemplates: [],
         edit: false,
         dragging: {
@@ -306,9 +306,9 @@ var app = new Vue({
                     this.useKarma = false
                 }
 
-                if (this.hideRoll) {
-                    message = expandHideRoll(message)
-                    this.hideRoll = false
+                if (this.hideDice) {
+                    message = expandHideDice(message)
+                    this.hideDice = false
                 }
             } else {
                 message = text
