@@ -246,6 +246,11 @@ var app = new Vue({
         hideRoll: false,
         messageTemplates: [],
         edit: false,
+        dragging: {
+            templates: {
+                hoverIndex: null
+            }
+        },
         toggleButton: {
             text: 'Edit'
         },
@@ -326,6 +331,9 @@ var app = new Vue({
             if (newIndex > oldIndex)
                 newIndex -= 1
             this.messageTemplates.splice(newIndex, 0, item)
+        },
+        endDrag: function(_evt) {
+            this.dragging.templates.hoverIndex = null
         }
     }
 })

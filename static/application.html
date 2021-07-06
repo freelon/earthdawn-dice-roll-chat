@@ -106,10 +106,14 @@
           <button id="toggle-edit" v-on:click="toggleEdit">{{ toggleButton.text }}</button>
           <button v-if="edit" v-on:click="messageTemplates.push({})" title="Add template">+</button>
           <ul>
-            <div v-if="edit" class="template-drop-zone" @drop="onDrop($event, 0)" @dragover.prevent @dragenter.prevent>
+            <div v-if="edit" class="template-drop-zone"
+              v-bind:class="{ 'template-drop-zone-active': dragging.templates.hoverIndex == 0 }"
+              @drop="onDrop($event, 0)" @dragover.prevent @dragenter.prevent
+              @dragenter="dragging.templates.hoverIndex = 0" @dragleave="dragging.templates.hoverIndex = null">
             </div>
             <li v-for="(template, templateIndex) in messageTemplates" class="template-entry">
-              <div class="edit" v-if="edit" draggable @dragstart="startDrag($event, templateIndex)">
+              <div class="edit" v-if="edit" draggable @dragstart="startDrag($event, templateIndex)"
+                @dragend="endDrag($event)">
                 <input v-model="template.title" placeholder="Template name">
                 <br>
                 <input v-model="template.text" placeholder="Template content">
@@ -124,8 +128,11 @@
                 <span class="text">{{ template.text }}</span>
               </div>
 
-              <div v-if="edit" class="template-drop-zone" @drop="onDrop($event, templateIndex + 1)" @dragover.prevent
-                @dragenter.prevent></div>
+              <div v-if="edit" class="template-drop-zone"
+                v-bind:class="{ 'template-drop-zone-active': dragging.templates.hoverIndex == templateIndex + 1 }"
+                @drop="onDrop($event, templateIndex + 1)" @dragover.prevent @dragenter.prevent
+                @dragenter="dragging.templates.hoverIndex = templateIndex + 1"
+                @dragleave="dragging.templates.hoverIndex = null"></div>
             </li>
           </ul>
         </template>
