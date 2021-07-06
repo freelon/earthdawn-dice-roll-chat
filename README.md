@@ -6,6 +6,13 @@ This is based on the [actix-websocket-chat example](https://github.com/actix/exa
 
 ## Changelog
 
+### 0.8
+
+* Implemented negative expressions
+* Added option to hide the dice of a roll
+* Added named initiatives (e.g. roll '!!d4 (ini:Minion) attack' and '!!2d6 (ini:Boss) kill everyone' to roll initiatives for the boss and its minions separately)
+* Made templates reorderable via drag and drop
+
 ### 0.7
 
 * Configurable port
