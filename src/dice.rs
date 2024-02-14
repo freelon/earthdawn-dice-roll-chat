@@ -40,7 +40,7 @@ fn run(input: &str, should_explode: bool) -> Option<i32> {
         let input = if negative { &input[1..] } else { &input[..] };
 
         let parts: Vec<&str> = input.split('d').collect();
-        let a = if parts[0].is_empty() {
+        let a = if parts[0] == "+" || parts[0] == "-" {
             1
         } else {
             if let Ok(i) = parts[0].parse::<u32>() {
@@ -147,5 +147,10 @@ mod test {
     #[test]
     fn test_dice() {
         assert_eq!(vec![1, 2, 3], get_results(&"1d1+2d1+3d1"));
+    }
+
+    #[test]
+    fn test_dice_without_prefix() {
+        assert_eq!(vec![1], get_results(&"d1"));
     }
 }
